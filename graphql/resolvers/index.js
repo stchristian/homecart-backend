@@ -82,7 +82,7 @@ const mockedProducts = [
 ]
 
 const mockedToken = {
-  userId: 1
+  userId: 1,
   token: 'somerandomstringbest4evergraphqlyeah',
   expireDate: '2011-10-05T14:48:00.000Z'
 }
@@ -117,9 +117,19 @@ module.exports = {
     newUser.addresses.push(userData.address)
     mockedUsers.push(newUser)
     return newUser
-  }
+  },
   createOrder: async ({ orderData }) => {
-    
+    //This 
+    // const newOrder = {
+    //   ...orderData,
+    //   _id: mockedOrders++,
+    //   customer: 1,
+    //   state: 'CREATED',
+    //   courier: null,
+    //   totalPrice: orderData.items.reduce((total, current) => {
+    //     return total + current.price
+    //   }, 0)
+    // }
   }
 }
   

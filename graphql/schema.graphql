@@ -21,7 +21,13 @@ input UserData {
   firstName: String!
   lastName: String!
   phoneNumber: String!
-  address: Address!
+  address: AddressInput!
+}
+
+input AddressInput {
+  city: String!
+  zip: Int!
+  streetAddress: String!
 }
 
 input Credentials {
@@ -59,10 +65,22 @@ type Address {
 }
 
 input OrderData {
-  preferredDeliveryTime: TimeInterval
-  items: [OrderItem!]!
-  address: Address!
+  preferredDeliveryTime: TimeIntervalInput
+  items: [OrderItemInput!]!
+  address: AddressInput!
   deadline: String!
+}
+
+input OrderItemInput {
+  productId: ID!
+  quantity: Int!
+  amount: Int!
+  amountType: AmountType!
+}
+
+input TimeIntervalInput {
+  start: String!
+  end: String!
 }
 
 type Order {
@@ -117,6 +135,3 @@ type Token {
   token: String!
   expireDate: String!
 }
-
-
-
