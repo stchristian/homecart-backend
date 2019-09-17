@@ -1,0 +1,122 @@
+type RootQuery {
+  users: [User!]!
+  products: [Product!]!
+  orders(ordersQuery: OrdersQuery): [Order!]!
+  loginUser(credentials: Credentials): Token
+}
+
+type RootMutation {
+  createUser(userData: UserData!): User!
+  createOrder(orderData: OrderData!): Order!
+}
+
+schema {
+  query: RootQuery
+  mutation: RootMutation
+}
+
+input UserData {
+  email: String!
+  password: String!
+  firstName: String!
+  lastName: String!
+  phoneNumber: String!
+  address: Address!
+}
+
+input Credentials {
+  email: String!
+  password: String!
+}
+
+input OrdersQuery {
+  state: OrderState
+  orderBy: OrdersOrderByInput
+}
+
+enum OrdersOrderByInput {
+  createdAt_ASC
+  createdAt_DESC
+}
+
+type User {
+  _id: ID!
+  email: String!
+  firstName: String!
+  lastName: String!
+  password: String
+  phoneNumber: String!
+  addresses: [Address!]!
+  orders: [Order!]!
+  isCourier: Boolean!
+  courierOrders: [Order!]!
+}
+
+type Address {
+  city: String!
+  zip: Int!
+  streetAddress: String!
+}
+
+input OrderData {
+  preferredDeliveryTime: TimeInterval
+  items: [OrderItem!]!
+  address: Address!
+  deadline: String!
+}
+
+type Order {
+  _id: ID!
+  customer: User!
+  state: OrderState!
+  items: [OrderItem!]!
+  address: Address!
+  courier: User
+  deadline: String!
+  preferredDeliveryTime: TimeInterval
+  totalPrice: Int!
+  createdAt: String!
+}
+
+enum OrderState {
+  CREATED
+  POSTED
+  ASSIGNED
+  COMPLETED
+  EXPIRED
+}
+
+type TimeInterval {
+  start: String!
+  end: String!
+}
+
+type OrderItem {
+  amount: Int!
+  amountType: AmountType!
+  product: Product!
+  price: Int!
+}
+
+enum AmountType {
+  PIECE
+  MASS
+  LENGTH
+  AREA
+}
+
+type Product {
+  _id: ID!
+  name: String!
+  estimatedPrice: Int!
+  description: String
+}
+
+type Token {
+  userId: ID!
+  token: String!
+  expireDate: String!
+}
+
+
+
