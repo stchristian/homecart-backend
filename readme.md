@@ -19,7 +19,7 @@ Run dev server:
 ```
 npm run start
 ```
-Generate schema.json for apollo client:
+Generate schema.json for apollo client (the server should be running when executing this command):
 ```
 npm run schema
 ```
