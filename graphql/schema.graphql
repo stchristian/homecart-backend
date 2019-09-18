@@ -6,8 +6,9 @@ type RootQuery {
 }
 
 type RootMutation {
-  createUser(userData: UserData!): User!
-  createOrder(orderData: OrderData!): Order!
+  createUser(userData: CreateUserInput!): User!
+  createOrder(orderData: CreateOrderData!): Order!
+  createProduct(productData: CreateProductInput!): Product!
 }
 
 schema {
@@ -15,13 +16,19 @@ schema {
   mutation: RootMutation
 }
 
-input UserData {
+input CreateUserInput {
   email: String!
   password: String!
   firstName: String!
   lastName: String!
   phoneNumber: String!
   address: AddressInput!
+}
+
+input CreateProductInput {
+  name: String!
+  estimatedPrice: Int!
+  description: String
 }
 
 input AddressInput {
@@ -64,7 +71,7 @@ type Address {
   streetAddress: String!
 }
 
-input OrderData {
+input CreateOrderData {
   preferredDeliveryTime: TimeIntervalInput
   items: [OrderItemInput!]!
   address: AddressInput!
@@ -73,7 +80,6 @@ input OrderData {
 
 input OrderItemInput {
   productId: ID!
-  quantity: Int!
   amount: Int!
   amountType: AmountType!
 }
@@ -133,5 +139,5 @@ type Product {
 type Token {
   userId: ID!
   token: String!
-  expireDate: String!
+  expirationDate: String!
 }
