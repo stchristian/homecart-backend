@@ -133,7 +133,15 @@ module.exports = {
     return mockedProducts
   },
   orders: async ({ ordersQuery }) => {
-    return mockedOrders
+    const orders = await Order.find()
+      .populate('customer')
+      .populate('courier')
+      .populate('items.product')
+    const result = orders.map(order => ({
+      ...order._doc,
+      createdAt: (new Date(order.createdAt)).toISOString()
+    }))
+    return result
   },
   createUser: async ({ userData }) => {
     try {

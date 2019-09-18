@@ -3,6 +3,27 @@ const addressSchema = require('./AddressSchema')
 
 const Schema = mongoose.Schema
 
+const orderItemSchema = new Schema({
+  amount: {
+    type: Number,
+    required: true
+  },
+  amountType: {
+    type: String,
+    enum: ['MASS', 'PIECE', 'LENGTH', 'AREA'],
+    required: true
+  },
+  product: {
+    type: Schema.Types.ObjectId,
+    ref: 'Product',
+    required: true
+  },
+  price: {
+    type: Number,
+    default: 0
+  }
+}, { _id: false })
+
 const orderSchema = new Schema({
   customer: {
     type: Schema.Types.ObjectId,
@@ -18,26 +39,7 @@ const orderSchema = new Schema({
       'EXPIRED'
     ]
   },
-  items: [new Schema({
-    amount: {
-      type: Number,
-      required: true
-    },
-    amountType: {
-      type: String,
-      enum: ['MASS', 'PIECE', 'LENGTH', 'AREA'],
-      required: true
-    },
-    product: {
-      type: Schema.Types.ObjectId,
-      ref: 'Product',
-      required: true
-    },
-    price: {
-      type: Number,
-      default: 0
-    }
-  }, { _id: false })],
+  items: [orderItemSchema],
   address: {
     type: addressSchema,
     required: true
@@ -60,8 +62,6 @@ const orderSchema = new Schema({
         type: Date,
         required: true
       }
-    }, {
-      _id: false
     }, { _id: false })
   },
   totalPrice: {
