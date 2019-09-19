@@ -22,7 +22,7 @@ input CreateUserInput {
   firstName: String!
   lastName: String!
   phoneNumber: String!
-  address: AddressInput!
+  address: AddressInput
 }
 
 input CreateProductInput {
