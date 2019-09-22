@@ -23,3 +23,6 @@ Generate schema.json for apollo client (the server should be running when execut
 ```
 npm run schema
 ```
+
+### Insomnia
+You can use Insomnia (insead of graphqli) to send graphql request with the authorization headers. Sample queries are added to the project so you can import them.
