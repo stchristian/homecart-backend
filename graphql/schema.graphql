@@ -1,6 +1,7 @@
 type RootQuery {
   users: [User!]!
-  products: [Product!]!
+  userById(id: ID!): User
+  products(search: String): [Product!]!
   orders(ordersQuery: OrdersQuery): [Order!]!
   loginUser(credentials: Credentials): Token
 }
@@ -59,7 +60,7 @@ type User {
   lastName: String!
   password: String
   phoneNumber: String!
-  addresses: [Address!]!
+  addresses: [Address]
   orders: [Order!]!
   isCourier: Boolean!
   courierOrders: [Order!]!

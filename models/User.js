@@ -3,6 +3,10 @@ const addressSchema = require('./AddressSchema')
 const Schema = mongoose.Schema
 
 const userSchema = new Schema({
+  googleId: {
+    type: String,
+    default: "",
+  },
   email: {
     type: String,
     required: true
@@ -36,6 +40,14 @@ const userSchema = new Schema({
     type: Boolean,
     default: false
   },
+  biography: {
+    type: String, 
+    required: false
+  },
+  balance: {
+    type: Number,
+    default: 0,
+  }
 })
 
 const User = mongoose.model('User', userSchema)
