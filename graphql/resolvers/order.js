@@ -21,7 +21,6 @@ module.exports = {
     if(!request.isAuth) {
       throw new Error("Unauthenticated. Please log in.")
     }
-    console.log(orderData)
 
     let parsedDelTime
     if (orderData.preferredDeliveryTime) {
@@ -44,10 +43,11 @@ module.exports = {
       totalPrice: 0,
       preferredDeliveryTime: parsedDelTime,
     })
-
+    const populated = await Order.populate(newOrder, 'customer')
+    console.log(populated._doc)
     return {
-      ...newOrder._doc,
-      customer: request.user._doc
+      ...populated._doc,
+      customer: populated.customer._doc
     }
   },
 
