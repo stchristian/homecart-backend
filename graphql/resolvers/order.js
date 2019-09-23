@@ -9,6 +9,10 @@ module.exports = {
     const result = orders.map(order => ({
       ...order._doc,
       createdAt: (new Date(order.createdAt)).toISOString()
+      preferredDeliveryTime: {
+        start: order.preferredDeliveryTime.start.toISOString()
+        end: order.preferredDeliveryTime.end.toISOString()
+      }
     }))
     return result
   },
