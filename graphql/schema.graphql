@@ -24,6 +24,7 @@ input CreateUserInput {
   lastName: String!
   phoneNumber: String!
   address: AddressInput
+  biography: String
 }
 
 input CreateProductInput {
@@ -64,6 +65,8 @@ type User {
   orders: [Order!]!
   isCourier: Boolean!
   courierOrders: [Order!]!
+  biography: String
+  balance: Int!
 }
 
 type Address {

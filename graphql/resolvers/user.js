@@ -41,6 +41,7 @@ module.exports = {
         lastName: userData.lastName,
         phoneNumber: userData.phoneNumber,
         addresses: userData.address ? new Array(userData.address) : [],
+        biography: userData.biography ? userData.biography : undefined,
       })
       return {
         ...newUser._doc,
