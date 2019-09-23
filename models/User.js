@@ -36,6 +36,10 @@ const userSchema = new Schema({
       type: Schema.Types.ObjectId,
       ref: 'Order'
   }],
+  courierOrders: [{
+    type: Schema.Types.ObjectId,
+    ref: 'Order'
+  }],
   isAdmin: {
     type: Boolean,
     default: false
