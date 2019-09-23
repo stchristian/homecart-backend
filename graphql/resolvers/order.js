@@ -46,7 +46,8 @@ module.exports = {
     })
 
     return {
-      ...newOrder._doc
+      ...newOrder._doc,
+      customer: request.user._doc
     }
   },
 
