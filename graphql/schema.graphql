@@ -1,4 +1,13 @@
-type RootQuery {
+# import * from "./query/user.graphql"
+# import * from "./query/order.graphql"
+# import * from "./query/product.graphql"
+
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+type Query {
   users: [User!]!
   userById(id: ID!): User
   products(search: String): [Product!]!
@@ -6,25 +15,11 @@ type RootQuery {
   loginUser(credentials: Credentials): Token
 }
 
-type RootMutation {
+type Mutation {
   createUser(userData: CreateUserInput!): User!
   createOrder(orderData: CreateOrderData!): Order!
   createProduct(productData: CreateProductInput!): Product!
-}
-
-schema {
-  query: RootQuery
-  mutation: RootMutation
-}
-
-input CreateUserInput {
-  email: String!
-  password: String!
-  firstName: String!
-  lastName: String!
-  phoneNumber: String!
-  address: AddressInput
-  biography: String
+  applyForOrder(orderId: ID!): Order
 }
 
 input CreateProductInput {
@@ -54,21 +49,6 @@ enum OrdersOrderByInput {
   createdAt_DESC
 }
 
-type User {
-  _id: ID!
-  email: String!
-  firstName: String!
-  lastName: String!
-  password: String
-  phoneNumber: String!
-  addresses: [Address]
-  orders: [Order!]!
-  isCourier: Boolean!
-  courierOrders: [Order!]!
-  biography: String
-  balance: Int!
-}
-
 type Address {
   city: String!
   zip: Int!
@@ -93,27 +73,6 @@ input TimeIntervalInput {
   end: String!
 }
 
-type Order {
-  _id: ID!
-  customer: User!
-  state: OrderState!
-  items: [OrderItem!]!
-  address: Address!
-  courier: User
-  deadline: String!
-  preferredDeliveryTime: TimeInterval
-  totalPrice: Int!
-  createdAt: String!
-}
-
-enum OrderState {
-  CREATED
-  POSTED
-  ASSIGNED
-  COMPLETED
-  EXPIRED
-}
-
 type TimeInterval {
   start: String!
   end: String!
@@ -131,13 +90,6 @@ enum AmountType {
   MASS
   LENGTH
   AREA
-}
-
-type Product {
-  _id: ID!
-  name: String!
-  estimatedPrice: Int!
-  description: String
 }
 
 type Token {

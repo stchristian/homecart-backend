@@ -32,6 +32,6 @@ module.exports = async (req, res, next) => {
   // })
   req.isAuth = true;
   req.userId = decodedToken.userId;
-  req.user = await User.find({ _id: decodedToken.userId})
+  req.user = await User.findById(decodedToken.userId)
   next();
 };

@@ -1,0 +1,24 @@
+type User {
+  _id: ID!
+  email: String!
+  firstName: String!
+  lastName: String!
+  password: String
+  phoneNumber: String!
+  addresses: [Address]
+  orders: [Order!]!
+  isCourier: Boolean!
+  courierOrders: [Order!]!
+  biography: String
+  balance: Int!
+}
+
+input CreateUserInput {
+  email: String!
+  password: String!
+  firstName: String!
+  lastName: String!
+  phoneNumber: String!
+  address: AddressInput
+  biography: String
+}

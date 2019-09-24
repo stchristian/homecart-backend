@@ -17,6 +17,35 @@ module.exports = {
     return result
   },
   
+  applyForOrder: async ({ orderId }, request) => {
+    if(!request.isAuth) {
+      throw new Error("Unauthenticated. Please log in.")
+    }
+    if(!request.user.isCourier) {
+      throw new Error("You are not a courier.")
+    }
+    try {
+      const order = await Order.findById(orderId)
+      if (!order) {
+        throw new Error("No order found with the given orderId.")
+      }
+      if (order.state === 'ASSIGNED' || order.state === 'COMPLETED' || order.state === 'EXPIRED') {
+        throw new Error("You cannot apply to this order.")
+      }
+      order.state = 'ASSIGNED'
+      order.courier = request.user.id
+      const newOrder = await order.save()
+      const populated = await Order.populate(newOrder, ['customer', 'courier'])
+      return {
+        ...populated._doc,
+        customer: populated.customer._doc,
+        courier: populated.courier._doc
+      }
+    } catch (error) {
+      throw error
+    }
+  },
+
   createOrder: async ({ orderData }, request) => {
     if(!request.isAuth) {
       throw new Error("Unauthenticated. Please log in.")

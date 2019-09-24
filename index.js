@@ -6,14 +6,11 @@ const fs = require('fs')
 const bodyParser = require('body-parser')
 const db = require('./models')
 const authenticateMW = require('./middlewares/authenticate')
+const { importSchema } = require('graphql-import')
 
 const graphQlResolvers = require('./graphql/resolvers')
 
-const schemaString = fs.readFileSync('./graphql/schema.graphql', {
-  encoding: 'utf8'
-})
-
-const MyGraphQLSchema = buildSchema(schemaString)
+const MyGraphQLSchema = buildSchema(importSchema('./graphql/schema.graphql'))
 
 const app = express()
 

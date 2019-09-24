@@ -1,0 +1,20 @@
+type Order {
+  _id: ID!
+  customer: User!
+  state: OrderState!
+  items: [OrderItem!]!
+  address: Address!
+  courier: User
+  deadline: String!
+  preferredDeliveryTime: TimeInterval
+  totalPrice: Int!
+  createdAt: String!
+}
+
+enum OrderState {
+  CREATED
+  POSTED
+  ASSIGNED
+  COMPLETED
+  EXPIRED
+}

@@ -1,0 +1,6 @@
+type Product {
+  _id: ID!
+  name: String!
+  estimatedPrice: Int!
+  description: String
+}
