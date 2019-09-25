@@ -1,4 +1,5 @@
 const { Order } = require('../../models')
+const { Product } = require('../../models')
 
 module.exports = {
   orders: async ({ ordersQuery }) => {
@@ -12,7 +13,8 @@ module.exports = {
       preferredDeliveryTime: {
         start: order.preferredDeliveryTime.start.toISOString(),
         end: order.preferredDeliveryTime.end.toISOString()
-      }
+      },
+      deadline: order.deadline.toISOString()
     }))
     return result
   },
@@ -58,7 +60,15 @@ module.exports = {
         end: new Date(orderData.preferredDeliveryTime.end)
       }
     }
-
+    const productIds = orderData.items.map(item => item.productId)
+    const products = await Product.find().where('_id').in(productIds).exec()
+    const totalPrice = orderData.items.reduce((total, item) => {
+      const product = products.find(pr => pr.id == item.productId)
+      if (!product) {
+        throw Error(`Rossz product id-t adtal meg: ${item.productId}`)
+      }
+      return total + item.amount * product.estimatedPrice
+    }, 0)
     const newOrder = await Order.create({
       customer: request.userId,
       state: 'POSTED',
@@ -69,14 +79,15 @@ module.exports = {
       })),
       address: orderData.address,
       deadline: new Date(orderData.deadline),
-      totalPrice: 0,
+      totalPrice,
       preferredDeliveryTime: parsedDelTime,
     })
     const populated = await Order.populate(newOrder, 'customer')
     console.log(populated._doc)
     return {
       ...populated._doc,
-      customer: populated.customer._doc
+      customer: populated.customer._doc,
+      deadline: populated.deadline.toISOString()
     }
   },
 
