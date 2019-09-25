@@ -14,6 +14,18 @@ module.exports = {
       throw err
     }
   },
+  applyForCourier: async (args, request) => {
+    if (!request.isAuth) {
+      throw new Error("Unauthenticated. Please log in.")
+    }
+    if(request.user.isCourier) {
+      return true
+    } else {
+      request.user.isCourier = true
+      const user = await request.user.save()
+      return user.isCourier
+    }
+  },
   userById: async ({ id }, request) => {
     if (!request.isAuth) {
       throw new Error("Unauthenticated. Please log in.")

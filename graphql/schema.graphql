@@ -20,6 +20,7 @@ type Mutation {
   createOrder(orderData: CreateOrderData!): Order!
   createProduct(productData: CreateProductInput!): Product!
   applyForOrder(orderId: ID!): Order
+  applyForCourier: Boolean
 }
 
 input CreateProductInput {
