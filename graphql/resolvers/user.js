@@ -1,16 +1,18 @@
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const { User } = require("../../models")
+const { prisma } = require("../../generated/prisma-client")
 
 module.exports = {
   users: async () => {
     try {
-      const users = await User.find()
-      return users.map(user => ({ 
-        ...user._doc,
-        password: null
+      const users = await prisma.users()
+      console.log(users)
+      return users.map(user => ({
+        ...user,
+        password: null,
       }))
-    } catch (error) {
+    } catch (err) {
       throw err
     }
   },
@@ -45,22 +47,29 @@ module.exports = {
   },
   createUser: async ({ userData }) => {
     try {
+      console.log(userData)
       const hashedPassword = await bcrypt.hash(userData.password, 12)
-      const newUser = await User.create({
+      const user = await prisma.createUser({
         email: userData.email,
         password: hashedPassword,
         firstName: userData.firstName,
         lastName: userData.lastName,
         phoneNumber: userData.phoneNumber,
-        addresses: userData.address ? new Array(userData.address) : [],
+        addresses: {
+          create: [
+            {
+              ...userData.address
+            }
+          ]
+        },
         biography: userData.biography ? userData.biography : undefined,
       })
       return {
-        ...newUser._doc,
+        ...user,
         password: null
       }
     } catch (error) {
-      throw err
+      throw error
     }
   },
   loginUser: async ({ credentials }) => {

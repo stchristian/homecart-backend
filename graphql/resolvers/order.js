@@ -3,10 +3,15 @@ const { Product } = require('../../models')
 
 module.exports = {
   orders: async ({ ordersQuery }) => {
-    const orders = await Order.find()
+    let args = {}
+    if (ordersQuery.state) {
+      args.state = ordersQuery.state
+    }
+    const orders = await Order.find(args)
       .populate('customer')
       .populate('courier')
       .populate('items.product')
+      .sort('-createdAt')
     const result = orders.map(order => ({
       ...order._doc,
       createdAt: (new Date(order.createdAt)).toISOString(),
@@ -43,6 +48,30 @@ module.exports = {
         customer: populated.customer._doc,
         courier: populated.courier._doc
       }
+    } catch (error) {
+      throw error
+    }
+  },
+
+  myPostedOrders: async (_, request) => {
+    if(!request.isAuth) {
+      throw new Error("Unauthenticated. Please log in.")
+    }
+    try {
+      const orders = await Order.find({ state: 'POSTED' })
+        .populate('customer')
+        .populate('courier')
+        .populate('items.product')
+      const result = orders.map(order => ({
+        ...order._doc,
+        createdAt: (new Date(order.createdAt)).toISOString(),
+        preferredDeliveryTime: {
+          start: order.preferredDeliveryTime.start.toISOString(),
+          end: order.preferredDeliveryTime.end.toISOString()
+        },
+        deadline: order.deadline.toISOString()
+      }))
+      return result
     } catch (error) {
       throw error
     }

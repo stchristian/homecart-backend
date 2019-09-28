@@ -13,6 +13,7 @@ type Query {
   products(search: String): [Product!]!
   orders(ordersQuery: OrdersQuery): [Order!]!
   loginUser(credentials: Credentials): Token
+  myPostedOrders: [Order!]!
 }
 
 type Mutation {
