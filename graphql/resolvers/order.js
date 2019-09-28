@@ -58,7 +58,10 @@ module.exports = {
       throw new Error("Unauthenticated. Please log in.")
     }
     try {
-      const orders = await Order.find({ state: 'POSTED' })
+      const orders = await Order.find({ 
+        state: 'POSTED',
+        customer: request.userId
+      })
         .populate('customer')
         .populate('courier')
         .populate('items.product')
