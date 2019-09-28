@@ -53,14 +53,21 @@ module.exports = {
     }
   },
 
-  myPostedOrders: async (_, request) => {
+  myAssignedOrders: async (_, request) => {
     if(!request.isAuth) {
       throw new Error("Unauthenticated. Please log in.")
     }
     try {
       const orders = await Order.find({ 
-        state: 'POSTED',
-        customer: request.userId
+        state: 'ASSIGNED',
+        $or: [
+          {
+            customer: request.userId
+          },
+          {
+            courier: request.userId
+          }
+        ]
       })
         .populate('customer')
         .populate('courier')

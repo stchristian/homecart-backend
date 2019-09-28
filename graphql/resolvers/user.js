@@ -1,15 +1,13 @@
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const { User } = require("../../models")
-const { prisma } = require("../../generated/prisma-client")
 
 module.exports = {
   users: async () => {
     try {
-      const users = await prisma.users()
-      console.log(users)
+      const users = await User.find()
       return users.map(user => ({
-        ...user,
+        ...user._doc,
         password: null,
       }))
     } catch (err) {
