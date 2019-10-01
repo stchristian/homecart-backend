@@ -20,6 +20,7 @@ type Mutation {
   createUser(userData: CreateUserInput!): User!
   createOrder(orderData: CreateOrderData!): Order!
   createProduct(productData: CreateProductInput!): Product!
+  itemsPurchased(orderId: ID!, realPrice: Int!): Order!
   applyForOrder(orderId: ID!): Order
   applyForCourier: Boolean
 }
@@ -62,6 +63,7 @@ input CreateOrderData {
   items: [OrderItemInput!]!
   address: AddressInput!
   deadline: String!
+  tipPrice: Int!
 }
 
 input OrderItemInput {

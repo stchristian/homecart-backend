@@ -23,6 +23,41 @@ module.exports = {
     }))
     return result
   },
+
+  itemsPurchased: async ({ orderId, realPrice }, request) => {
+    if (!request.isAuth) {
+      throw new Error("Unauthenticated. Please log in.")
+    }
+    if (!request.user.isCourier) {
+      throw new Error("You are not a courier.")
+    }
+    try {
+      const order = await Order.findById(orderId)
+      if (!order) {
+        throw new Error("No order found with the given orderId.")
+      }
+      if (order.state !== 'ASSIGNED') {
+        throw new Error("This order is already completed or unassigned.")
+      }
+      console.log(order.courier)
+      console.log(request.userId)
+      if (order.courier != request.userId) {
+        throw new Error("This order is not assigned to you.")
+      }
+      order.state = 'PURCHASED'
+      order.realPrice = realPrice
+      order.totalPrice = order.tipPrice + realPrice
+      const newOrder = await order.save()
+      const populated = await Order.populate(newOrder, ['customer', 'courier'])
+      return {
+        ...populated._doc,
+        customer: populated.customer._doc,
+        courier: populated.courier._doc
+      }
+    } catch (error) {
+      throw error
+    }
+  },
   
   applyForOrder: async ({ orderId }, request) => {
     if(!request.isAuth) {
@@ -101,7 +136,7 @@ module.exports = {
     }
     const productIds = orderData.items.map(item => item.productId)
     const products = await Product.find().where('_id').in(productIds).exec()
-    const totalPrice = orderData.items.reduce((total, item) => {
+    const estimatedPrice = orderData.items.reduce((total, item) => {
       const product = products.find(pr => pr.id == item.productId)
       if (!product) {
         throw Error(`Rossz product id-t adtal meg: ${item.productId}`)
@@ -118,7 +153,8 @@ module.exports = {
       })),
       address: orderData.address,
       deadline: new Date(orderData.deadline),
-      totalPrice,
+      estimatedPrice,
+      tipPrice: orderData.tipPrice,
       preferredDeliveryTime: parsedDelTime,
     })
     const populated = await Order.populate(newOrder, 'customer')

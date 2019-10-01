@@ -35,6 +35,7 @@ const orderSchema = new Schema({
       'CREATED', 
       'POSTED',
       'ASSIGNED',
+      'PURCHASED',
       'COMPLETED',
       'EXPIRED'
     ]
@@ -66,7 +67,19 @@ const orderSchema = new Schema({
   },
   totalPrice: {
     type: Number,
-    required: true
+    default: 0,
+  },
+  realPrice: {
+    type: Number,
+    default: 0,
+  },
+  estimatedPrice: {
+    type: Number,
+    default: 0,
+  },
+  tipPrice: {
+    type: Number,
+    default: 0,
   }
 }, {
   timestamps: {

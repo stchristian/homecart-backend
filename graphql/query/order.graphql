@@ -7,8 +7,11 @@ type Order {
   courier: User
   deadline: String!
   preferredDeliveryTime: TimeInterval
-  totalPrice: Int!
   createdAt: String!
+  tipPrice: Int!
+  totalPrice: Int!
+  realPrice: Int!
+  estimatedPrice: Int!
 }
 
 enum OrderState {
@@ -17,4 +20,5 @@ enum OrderState {
   ASSIGNED
   COMPLETED
   EXPIRED
+  PURCHASED
 }
