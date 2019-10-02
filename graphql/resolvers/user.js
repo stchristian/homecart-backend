@@ -60,23 +60,18 @@ module.exports = {
     try {
       console.log(userData)
       const hashedPassword = await bcrypt.hash(userData.password, 12)
-      const user = await prisma.createUser({
+      const user = await User.create({
         email: userData.email,
         password: hashedPassword,
         firstName: userData.firstName,
         lastName: userData.lastName,
         phoneNumber: userData.phoneNumber,
-        addresses: {
-          create: [
-            {
-              ...userData.address
-            }
-          ]
-        },
+        addresses: new Array(userData.address),
         biography: userData.biography ? userData.biography : undefined,
       })
+      console.log(user)
       return {
-        ...user,
+        ...user._doc,
         password: null
       }
     } catch (error) {
