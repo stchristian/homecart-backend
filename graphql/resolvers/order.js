@@ -93,16 +93,32 @@ module.exports = {
       throw new Error("Unauthenticated. Please log in.")
     }
     try {
-      const orders = await Order.find({ 
-        state: 'ASSIGNED',
-        $or: [
+      const orders = await Order.find({
+        $and: [
           {
-            customer: request.userId
+            $or: [
+              {
+                state: 'ASSIGNED'
+              },
+              {
+                state: 'PURCHASED'
+              },
+              {
+                state: 'COMPLETED'
+              }
+            ],
           },
           {
-            courier: request.userId
+            $or: [
+              {
+                customer: request.userId
+              },
+              {
+                courier: request.userId
+              }
+            ]
           }
-        ]
+        ]  
       })
         .populate('customer')
         .populate('courier')
@@ -121,6 +137,43 @@ module.exports = {
       throw error
     }
   },
+
+  completeOrder: async ({ orderId }, request) => {
+    if(!request.isAuth) {
+      throw new Error("Unauthenticated. Please log in.")
+    }
+    try {
+      const order = await Order.findById(orderId).populate(['customer', 'courier'])
+      if (!order) {
+        throw new Error("No order found with the given orderId.")
+      }
+      if (order.state !== 'PURCHASED') {
+        throw new Error("You cannot complete this order.")
+      }
+      if (order.customer.id !== request.userId) {
+        throw new Error("This is not your order.")
+      }
+      if (request.user.balance < order.totalPrice) {
+        throw new Error("Sorry, you are poor.")
+      }
+      order.customer.balance -= order.totalPrice
+      order.courier.balance += order.totalPrice
+      order.state = 'COMPLETED'
+      await Promise.all(new Array(order.customer.save(), order.courier.save()))
+      const newOrder = await order.save()
+      const populated = await Order.populate(newOrder, ['customer', 'courier'])
+      return {
+        order: {
+          ...populated._doc,
+          customer: populated.customer._doc,
+          courier: populated.courier._doc
+        }
+      }
+    } catch (error) {
+      throw error
+    }
+  },
+  
 
   createOrder: async ({ orderData }, request) => {
     if(!request.isAuth) {

@@ -14,6 +14,19 @@ module.exports = {
       throw err
     }
   },
+
+  uploadMoney: async ({ amount }, { user, isAuth }) => {
+    if (!isAuth) {
+      throw new Error("Unauthenticated. Please log in.")
+    }
+    user.balance += amount
+    const savedUser = await user.save()
+    return {
+      ...savedUser._doc,
+      password: null
+    }
+  },
+  
   applyForCourier: async (args, request) => {
     if (!request.isAuth) {
       throw new Error("Unauthenticated. Please log in.")

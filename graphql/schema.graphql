@@ -20,9 +20,15 @@ type Mutation {
   createUser(userData: CreateUserInput!): User!
   createOrder(orderData: CreateOrderData!): Order!
   createProduct(productData: CreateProductInput!): Product!
+  completeOrder(orderId: ID!): CompleteOrderPayload!
+  uploadMoney(amount: Int!): User!
   itemsPurchased(orderId: ID!, realPrice: Int!): Order!
   applyForOrder(orderId: ID!): Order
   applyForCourier: Boolean
+}
+
+type CompleteOrderPayload {
+  order: Order
 }
 
 input CreateProductInput {
