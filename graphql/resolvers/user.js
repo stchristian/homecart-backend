@@ -66,7 +66,7 @@ module.exports = {
         firstName: userData.firstName,
         lastName: userData.lastName,
         phoneNumber: userData.phoneNumber,
-        addresses: new Array(userData.address),
+        addresses: userData.address ? new Array(userData.address) : [],
         biography: userData.biography ? userData.biography : undefined,
       })
       console.log(user)
