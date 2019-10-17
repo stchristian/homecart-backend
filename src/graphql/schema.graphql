@@ -1,0 +1,266 @@
+# Scalars
+scalar DateTime
+# Directives
+# directive  on FIELD_DEFINITION | OBJECT
+directive @auth (
+  role: UserRole
+) on FIELD_DEFINITION | OBJECT
+directive @constraint on FIELD_DEFINITION
+
+enum UserRole {
+  ADMIN
+  COURIER
+}
+
+type Query {
+  me: User @auth # Returns null when the user is not logged in
+  userById(id: ID!): User @auth(role: ADMIN)
+  users: [User!]! @auth(role: ADMIN) # Just for testing, client never uses
+  products(search: String): [Product!]! @auth # Todo pagination?
+  myOrders: [Order!]! @auth  # Orders where you were the customer
+  myJobs: [Order!]! @auth(role: COURIER) # Orders where you are the courier
+  postedOrders: [Order!]! @auth # Orders you can apply as a courier
+  myAssignedOrders: [Order!]! @auth # Left form old api 
+}
+
+type Mutation {
+  loginUser(loginUserInput: LoginUserInput): LoginUserResponse!
+
+  # create mutations
+  createUser(createUserInput: CreateUserInput!): CreateUserResponse!
+  createOrder(createOrderInput: CreateOrderInput!): CreateOrderResponse! 
+  createProduct(createProductInput: CreateProductInput!): CreateProductResponse! 
+
+  # other
+  uploadMoney(uploadMoneyInput: UploadMoneyInput!): UploadMoneyResponse! 
+  applyForCourier: ApplyForCourierResponse! @auth
+  signUpForOrder(signUpForOrderInput: SignUpForOrderInput): SignUpForOrderResponse! @auth(role: COURIER)
+  itemsPurchasedForOrder(itemsPurchasedForOrderInput: ItemsPurchasedForOrderInput): ItemsPurchasedForOrderResponse! @auth(role: COURIER) # For the courier
+  verifyPurchaseForOrder(verifyPurchaseForOrderInput: VerifyPurchaseForOrderInput): VerifyPurchaseForOrderResponse!  # For the customer
+}
+
+
+type User {
+  id: ID!
+  email: String! # Email scalar type?!
+  firstName: String!
+  lastName: String!
+  phoneNumber: String!
+  addresses: [Address]
+  orders: [Order!]!
+  isCourier: Boolean!
+  courierOrders: [Order!]!
+  biography: String
+  balance: Int!
+}
+
+type Order  {
+  id: ID!
+  customer: User!
+  state: OrderState!
+  items: [OrderItem!]!
+  address: Address!
+  courier: User
+  deadline: DateTime!
+  preferredDeliveryTime: TimeInterval
+  createdAt: DateTime!
+  tipPrice: Int!
+  totalPrice: Int!
+  realPrice: Int!
+  estimatedPrice: Int!
+}
+
+enum OrderState {
+  CREATED
+  POSTED
+  ASSIGNED
+  PURCHASED
+  COMPLETED
+  EXPIRED
+}
+
+type Product {
+  id: ID!
+  name: String!
+  estimatedPrice: Int!
+  description: String
+}
+
+type Address {
+  city: String!
+  zip: Int!
+  streetAddress: String!
+}
+
+type TimeInterval {
+  start: DateTime!
+  end: DateTime!
+}
+
+type OrderItem {
+  amount: Int!
+  amountType: AmountType!
+  product: Product!
+  # price: Int!
+}
+
+interface MutationResponse {
+  success: Boolean!
+  message: String!
+}
+
+##### loginUser
+input LoginUserInput {
+  email: String!
+  password: String!
+}
+
+type LoginUserResponse implements MutationResponse {
+  success: Boolean!
+  message: String!
+  token: String
+  expirationDate: DateTime
+}
+
+type Token {
+  userId: ID!
+  token: String!
+  expirationDate: DateTime!
+}
+##### end of loginUser
+
+##### createUser
+input CreateUserInput {
+  email: String!
+  password: String!
+  firstName: String!
+  lastName: String!
+  phoneNumber: String!
+  biography: String
+}
+
+type CreateUserResponse implements MutationResponse {
+  
+  success: Boolean!
+  message: String!
+  user: User
+}
+##### end of createUser
+
+##### createOrder
+input CreateOrderInput {
+  preferredDeliveryTime: TimeIntervalInput
+  items: [OrderItemInput!]!
+  address: AddressInput!
+  deadline: String!
+  tipPrice: Int!
+}
+
+input TimeIntervalInput {
+  start: DateTime!
+  end: DateTime!
+}
+
+input OrderItemInput {
+  productId: ID!
+  amount: Int!
+  amountType: AmountType!
+}
+
+enum AmountType {
+  PIECE
+  MASS
+  LENGTH
+  AREA
+}
+
+input AddressInput {
+  city: String!
+  zip: Int!
+  streetAddress: String!
+}
+
+type CreateOrderResponse implements MutationResponse {
+  
+  success: Boolean!
+  message: String!
+  order: Order
+}
+##### end of createOrder
+
+##### createProduct
+input CreateProductInput {
+  name: String!
+  estimatedPrice: Int!
+  description: String
+}
+
+type CreateProductResponse implements MutationResponse {
+  
+  success: Boolean!
+  message: String!
+  product: Product
+}
+##### end of createProduct
+
+##### uploadMoney
+input UploadMoneyInput {
+  amount: Int!
+}
+
+type UploadMoneyResponse implements MutationResponse {
+  
+  success: Boolean!
+  message: String!
+  user: User
+}
+##### end of uploadMoney
+
+##### applyForCourier
+type ApplyForCourierResponse implements MutationResponse {
+  
+  success: Boolean!
+  message: String!
+  user: User
+}
+##### end of applyForCourier
+
+##### itemsPurchasedFor
+input ItemsPurchasedForOrderInput {
+  orderId: ID!
+  realPrice: Int! # For now but an image from the receipt would be better 
+}
+
+type ItemsPurchasedForOrderResponse implements MutationResponse {
+  
+  success: Boolean!
+  message: String!
+  order: Order
+}
+##### end of itemsPurchasedFor
+
+##### signUpForOrder
+input SignUpForOrderInput {
+  orderId: ID!
+}
+
+type SignUpForOrderResponse implements MutationResponse {
+  
+  success: Boolean!
+  message: String!
+  order: Order
+}
+##### end of signUpForOrder
+
+##### verifyPurchaseForOrder
+input VerifyPurchaseForOrderInput {
+  orderId: ID!
+}
+
+type VerifyPurchaseForOrderResponse implements MutationResponse {
+  
+  success: Boolean!
+  message: String!
+  order: Order
+}
+##### end of verifyPurchaseForOrder
