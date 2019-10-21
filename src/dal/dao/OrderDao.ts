@@ -44,12 +44,12 @@ export class OrderDao implements IOrderDao {
     return this.transformFromDoc(userDoc);
   }
 
-  public async getOrdersByUser(user: User): Promise<Order[]> {
-    if (user.orderIds.length > 0) {
-      const result = await this.getManyByIds(user.orderIds);
-      return result;
-    } else { return []; }
-  }
+  // public async getOrdersByUser(user: User): Promise<Order[]> {
+  //   if (user.orderIds.length > 0) {
+  //     const result = await this.getManyByIds(user.orderIds);
+  //     return result;
+  //   } else { return []; }
+  // }
 
   public async getOrdersByUserId(userId: string): Promise<Order[]> {
     const result = await this.orders.find({

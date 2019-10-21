@@ -35,7 +35,6 @@ export default class App {
     const server = new ApolloServer({
       schema,
       context: async ({ req }) => {
-        console.log("NEW REQUEST");
         const authHeaderSplitted = req.headers.authorization.split(" ");
         const result = await this.services.authenticationService.verifyToken(authHeaderSplitted[1]);
         return {

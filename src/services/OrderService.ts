@@ -3,10 +3,11 @@ import "reflect-metadata";
 import { IOrderDao } from "src/dal/dao/IOrderDao";
 import { IUserDao } from "src/dal/dao/IUserDao";
 import { TYPES } from "../inversify/types";
-import { CreateOrderInput, Order, OrderState } from "../models/Order";
+import { Order, OrderState } from "../models/Order";
 import { IOrderService } from "./IOrderService";
 import { IProductService } from "./IProductService";
 import { IUserService } from "./IUserService";
+import { OrderDTO } from "../dto/OrderDTO";
 
 @injectable()
 export class OrderService implements IOrderService {
@@ -49,10 +50,8 @@ export class OrderService implements IOrderService {
     if (order.state !== OrderState.POSTED) {
       throw new Error("Order is not in POSTED state");
     }
-    user.courierOrderIds.push(order.id);
     order.state = OrderState.ASSIGNED;
     order.courierId = options.courierId;
-    await this.userDao.saveUser(user);
     return this.orderDao.saveOrder(order);
   }
 
@@ -95,7 +94,7 @@ export class OrderService implements IOrderService {
     return this.orderDao.getPostedOrders();
   }
 
-  public async createOrder(data: CreateOrderInput): Promise<Order> {
+  public async createOrder(data: OrderDTO): Promise<Order> {
     let estimatedPrice = data.tipPrice;
     for (const item of data.items) {
       const product = await this.productService.getProductById(item.productId);
@@ -103,7 +102,6 @@ export class OrderService implements IOrderService {
     }
     const order = Order.create({...data, estimatedPrice });
     const user = await this.userDao.getUserById(data.customerId);
-    user.orderIds.push(order.id);
     await this.userDao.saveUser(user);
     return this.orderDao.saveOrder(order);
   }

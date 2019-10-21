@@ -1,7 +1,5 @@
 import { GraphQLDateTime } from "graphql-iso-date";
 import { ResolverMap } from "../../@types/resolver";
-import { Product } from "../../models/Product";
-import { User } from "../../models/User";
 
 export default {
   DateTime: GraphQLDateTime,
@@ -154,14 +152,14 @@ export default {
     },
   },
 
-  User: {
-    courierOrders: (user, _, {  currentUser, orderLoader }) => {
-      return orderLoader.loadMany(user.courierOrderIds);
-    },
-    orders: (user, _, {  currentUser, orderLoader }) => {
-      return orderLoader.loadMany(user.orderIds);
-    },
-  },
+  // User: {
+  //   courierOrders: (user, _, { orderService }) => {
+  //     return orderService.getCourierOrdersByUserId(user.id);
+  //   },
+  //   orders: (user, _, { orderService }) => {
+  //     return orderService.getOrdersByUserId(user.id);
+  //   },
+  // },
 
   Order: {
     customer: (order, args, { currentUser, userLoader }) => {

@@ -68,8 +68,8 @@ export class AuthenticationService implements IAuthenticationService {
       process.env.JWT_SECRET,
     );
     const expirationDate = new Date();
+    // Token valid for 1 day
     expirationDate.setHours(expirationDate.getHours() + 24);
-    console.log(`expiration: ${expirationDate.toISOString()}`);
     return {
       success: true,
       message: "Logged in successfully",

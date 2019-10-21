@@ -1,16 +1,6 @@
 import bcrypt from "bcryptjs";
 import uuid from "uuid/v4";
-import { UserDocument } from "../dal/dao/UserDao";
-import { Order } from "./Order";
-
-export interface CreateUserInput {
-  email: string;
-  password: string;
-  firstName: string;
-  lastName: string;
-  phoneNumber: string;
-  biography: string;
-}
+import { UserDTO } from "../dto/UserDTO";
 
 export interface Address {
   zip: number;
@@ -33,7 +23,7 @@ export class User {
     return this.roles.includes(UserRoles.COURIER);
   }
 
-  public static async fromInput(input: CreateUserInput): Promise<User> {
+  public static async fromUserDTO(input: UserDTO): Promise<User> {
     const user = new User();
     console.log(input);
     user.id = uuid();
@@ -52,8 +42,6 @@ export class User {
   public lastName: string;
   public phoneNumber: string;
   public balance: number = 0;
-  public orderIds: string[] = [];
-  public courierOrderIds: string[] = [];
   public addresses: Address[] = [];
   public roles: UserRoles[] = [];
   public biography: string = "";

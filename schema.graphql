@@ -47,9 +47,9 @@ type User {
   lastName: String!
   phoneNumber: String!
   addresses: [Address]
-  orders: [Order!]!
+  # orders: [Order!]!
   isCourier: Boolean!
-  courierOrders: [Order!]!
+  # courierOrders: [Order!]!
   biography: String
   balance: Int!
 }

@@ -1,9 +1,10 @@
-import { CreateProductInput, Product } from "../models/Product";
+import { Product } from "../models/Product";
+import { ProductDTO } from "../dto/ProductDTO";
 
 export interface IProductService {
   getProductsByIds(ids: string[]): Promise<Product[]>;
   getAllProducts(): Promise<Product[]>;
-  createProduct(data: CreateProductInput): Promise<Product>;
+  createProduct(data: ProductDTO): Promise<Product>;
   getProductById(productId: string): Promise<Product>;
   search(text: string): Promise<Product[]>;
 }

@@ -6,7 +6,7 @@ import { User, UserRoles } from "../../models/User";
 import { getDb } from "../db/index";
 import { IUserDao } from "./IUserDao";
 
-export  interface UserDocument {
+interface UserDocument {
   _id: string;
   email: string;
   firstName: string;
@@ -15,8 +15,6 @@ export  interface UserDocument {
   biography: string;
   phoneNumber: string;
   balance: number;
-  orderIds: string[];
-  courierOrderIds: string[];
   addresses: any[];
   roles: UserRoles[];
 }
@@ -106,11 +104,9 @@ export class UserDao implements IUserDao {
     user.lastName = doc.lastName;
     user.phoneNumber = doc.phoneNumber;
     user.balance = doc.balance;
-    user.orderIds = doc.orderIds;
     user.addresses = doc.addresses;
     user.roles = doc.roles;
     user.biography = doc.biography;
-    user.courierOrderIds = doc.courierOrderIds;
     return user;
   }
 
@@ -122,12 +118,10 @@ export class UserDao implements IUserDao {
       email: user.email,
       biography: user.biography,
       addresses: user.addresses,
-      orderIds: user.orderIds,
       roles: user.roles,
       balance: user.balance,
       password: user.password,
       phoneNumber: user.phoneNumber,
-      courierOrderIds: user.courierOrderIds,
     };
   }
 

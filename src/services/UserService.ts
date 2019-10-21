@@ -2,8 +2,9 @@ import { inject, injectable } from "inversify";
 import "reflect-metadata";
 import { IUserDao } from "../dal/dao/IUserDao";
 import { TYPES } from "../inversify/types";
-import { CreateUserInput, User } from "../models/User";
+import { User } from "../models/User";
 import { IUserService } from "./IUserService";
+import { UserDTO } from "../dto/UserDTO";
 
 @injectable()
 export class UserService implements IUserService {
@@ -27,8 +28,8 @@ export class UserService implements IUserService {
     return this.userDao.getAllUsers();
   }
 
-  public async createUser(input: CreateUserInput): Promise<User> {
-    const user: User = await User.fromInput(input);
+  public async createUser(input: UserDTO): Promise<User> {
+    const user: User = await User.fromUserDTO(input);
     return this.userDao.saveUser(user);
   }
 
