@@ -12,7 +12,7 @@ import { IAuthenticationService } from "./services/IAuthenticationService";
 import { IOrderService } from "./services/IOrderService";
 import { IProductService } from "./services/IProductService";
 import { IUserService } from "./services/IUserService";
-const typeDefs = importSchema("./src/graphql/schema.graphql");
+const typeDefs = importSchema("./schema.graphql");
 
 export default class App {
   private DIContainer: Container;
