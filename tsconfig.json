@@ -2,7 +2,7 @@
   "compilerOptions": {
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "types": ["reflect-metadata"],
+    "types": ["reflect-metadata", "jest"],
     "sourceMap": true,
     "allowJs": true,
     "rootDir": "src",
@@ -17,4 +17,7 @@
     "typeRoots": ["./node_modules/@types", "./src/@types"],                       /* List of folders to include type definitions from. */
     "esModuleInterop": true                   /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */
   },
+  "exclude": [
+    "src/**/*.test.ts"
+  ],
 }

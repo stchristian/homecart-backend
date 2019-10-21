@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npx nodemon ./dist/index.js",
+    "test": "npx jest",
+    "dev": "npx nodemon ./dist/index.js",
+    "start": "node ./dist",
     "ts": "npx tsc -w",
     "schema": "npx apollo schema:download --endpoint=http://localhost:4000/graphql schema.json"
   },
@@ -14,14 +15,11 @@
   "license": "ISC",
   "dependencies": {
     "@types/mongodb": "^3.3.5",
-    "apollo-datasource-mongodb": "^0.1.0",
     "apollo-server": "^2.9.4",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
     "dataloader": "^1.4.0",
     "dotenv": "^8.1.0",
-    "express": "^4.17.1",
-    "express-graphql": "^0.9.0",
     "graphql": "^14.5.6",
     "graphql-constraint-directive": "^1.4.0",
     "graphql-import": "^0.7.1",
@@ -30,16 +28,20 @@
     "inversify": "^5.0.1",
     "jsonwebtoken": "^8.5.1",
     "mongodb": "^3.3.2",
-    "mongoose": "^5.7.1",
     "reflect-metadata": "^0.1.13",
     "uuid": "^3.3.3"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.2",
+    "@types/jest": "^24.0.19",
     "@types/jsonwebtoken": "^8.3.4",
     "@types/node": "^12.7.11",
+    "@types/sinon": "^7.5.0",
     "@types/uuid": "^3.4.5",
+    "jest": "^24.9.0",
     "nodemon": "^1.19.2",
+    "sinon": "^7.5.0",
+    "ts-jest": "^24.1.0",
     "ts-node": "^8.4.1",
     "tslint": "^5.20.0",
     "typescript": "^3.6.3"
