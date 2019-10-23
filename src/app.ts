@@ -35,18 +35,22 @@ export default class App {
     const server = new ApolloServer({
       schema,
       context: async ({ req }) => {
-        const authHeaderSplitted = req.headers.authorization.split(" ");
-        const result = await this.services.authenticationService.verifyToken(authHeaderSplitted[1]);
+        let currentUser = null;
+        if (req.headers.authorization) {
+          const authHeaderSplitted = req.headers.authorization.split(" ");
+          const result = await this.services.authenticationService.verifyToken(authHeaderSplitted[1]);
+          currentUser = result.user;
+        }
         return {
           ...this.services,
           req,
           ...getLoaders(this.services),
-          currentUser: result.user,
+          currentUser,
         };
       },
     });
     const { url } = await server.listen({
-      port: process.env.PORT
+      port: process.env.PORT,
     });
     console.log(`Apollo server started on ${url}...`);
   }
