@@ -48,6 +48,7 @@ export default class App {
           currentUser,
         };
       },
+      introspection: true,
     });
     const { url } = await server.listen({
       port: process.env.PORT,
