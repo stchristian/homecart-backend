@@ -1,7 +1,4 @@
 import uuid from "uuid/v4";
-import { IProductDao } from "../dal/dao/IProductDao";
-import { IUserDao } from "../dal/dao/IUserDao";
-import { IOrder } from "./IOrder";
 import { Product } from "./Product";
 import { Address, User } from "./User";
 

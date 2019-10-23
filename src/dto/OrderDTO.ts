@@ -7,7 +7,7 @@ export interface OrderDTO {
   customerId: string;
   tipPrice: number;
   items: OrderItemDTO[];
-  estimatedPrice: number;
+  estimatedPrice?: number;
 }
 
 export interface AddressDTO {
