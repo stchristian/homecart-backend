@@ -45,7 +45,9 @@ export default class App {
         };
       },
     });
-    const { url } = await server.listen();
+    const { url } = await server.listen({
+      port: process.env.PORT
+    });
     console.log(`Apollo server started on ${url}...`);
   }
 
