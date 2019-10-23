@@ -8,8 +8,6 @@ export async function initDb(): Promise<void> {
     useUnifiedTopology: true,
   });
   await client.connect();
-  Logger.setLevel("debug");
-  Logger.filter("class", ["Db"]);
   db = client.db();
   console.log("Connected succesfully to MongoDB database...");
 }
