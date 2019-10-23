@@ -12,6 +12,8 @@
     "seed": "node ./dist/dal/db/seed.js",
     "start": "node ./dist",
     "ts": "npx tsc -w",
+    "build-ts": "npx tsc",
+    "postinstall": "npm run build-ts",
     "schema": "npx apollo schema:download --endpoint=http://localhost:4000/graphql schema.json"
   },
   "keywords": [],
