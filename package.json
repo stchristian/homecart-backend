@@ -1,26 +1,25 @@
 {
   "name": "homecart-backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "E commerce style backend in TypeScript and GraphQl to support community based shopping.",
   "main": "index.js",
   "engines": {
     "node": "12.10.0"
   },
   "scripts": {
-    "test": "npx jest",
-    "dev": "npx nodemon ./dist/index.js",
+    "test": "jest",
+    "dev": "nodemon ./dist/index.js",
     "seed": "node ./dist/dal/db/seed.js",
     "start": "node ./dist",
-    "ts": "npx tsc -w",
-    "build-ts": "npx tsc",
+    "ts": "tsc -w",
+    "build-ts": "tsc",
     "postinstall": "npm run build-ts",
-    "schema": "npx apollo schema:download --endpoint=http://localhost:4000/graphql schema.json"
+    "schema": "npx apollo schema:download --endpoint=https://homecart-backend.herokuapp.com/graphql schema.json"
   },
   "keywords": [],
-  "author": "",
+  "author": "Hübner Krisztián",
   "license": "ISC",
   "dependencies": {
-    "@types/mongodb": "^3.3.5",
     "apollo-server": "^2.9.4",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
@@ -38,6 +37,7 @@
     "uuid": "^3.3.3"
   },
   "devDependencies": {
+    "@types/mongodb": "^3.3.5",
     "@types/bcryptjs": "^2.4.2",
     "@types/jest": "^24.0.19",
     "@types/jsonwebtoken": "^8.3.4",
