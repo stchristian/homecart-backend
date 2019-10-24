@@ -2,7 +2,7 @@
   "name": "homecart-backend",
   "version": "1.0.0",
   "description": "E commerce style backend in TypeScript and GraphQl to support community based shopping.",
-  "main": "index.js",
+  "main": "dist/index.js",
   "engines": {
     "node": "12.10.0"
   },
