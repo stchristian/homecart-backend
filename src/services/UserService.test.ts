@@ -33,6 +33,7 @@ describe("User service", () => {
     };
     const userDaoMock: unknown = {
       saveUser: sinon.stub().resolvesArg(0),
+      getUserByEmail: sinon.stub().withArgs(userDto.email).resolves(null),
     };
     const createdUser = {
       ...userDto,

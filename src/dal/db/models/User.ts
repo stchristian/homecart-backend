@@ -23,6 +23,7 @@ export interface IUserDocument extends Document, IUser {
 }
 
 const userSchema = new Schema({
+  _id: String,
   email: {
     type: String,
     required: true,

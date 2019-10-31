@@ -26,6 +26,7 @@ export interface IOrderDocument extends IOrder, Document {
 }
 
 const orderItemSchema = new Schema({
+  _id: String,
   amount: {
     type: Number,
     required: true,

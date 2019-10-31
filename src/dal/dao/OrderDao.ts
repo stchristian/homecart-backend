@@ -10,7 +10,7 @@ import { Order as MongooseOrder, IOrderDocument, IOrder } from "../db/models/Ord
 export class OrderDao implements IOrderDao {
 
   public async getOrderById(id: string): Promise<Order>  {
-    const userDoc = await MongooseOrder.findOne({ _id: id });
+    const userDoc = await MongooseOrder.findOne({ _id: id }, null, { lean: true });
     if (!userDoc) { throw new Error("No order with the given id"); }
     return this.transformFromDoc(userDoc);
   }
@@ -18,21 +18,21 @@ export class OrderDao implements IOrderDao {
   public async getOrdersByUserId(userId: string): Promise<Order[]> {
     const result = await MongooseOrder.find({
       customerId: userId,
-    });
+    }, null, { lean: true });
     return result.map((doc) => this.transformFromDoc(doc));
   }
 
   public async getPostedOrders(): Promise<Order[]> {
     const orders = await MongooseOrder.find({
       state: OrderState.POSTED,
-    });
+    }, null, { lean: true });
     return orders.map((order) => this.transformFromDoc(order));
   }
 
   public async getOrdersByCourierId(courierId: string): Promise<Order[]> {
     const orders = await MongooseOrder.find({
       courierId,
-    });
+    }, null, { lean: true });
     return orders.map((order) => this.transformFromDoc(order));
   }
 
@@ -41,23 +41,24 @@ export class OrderDao implements IOrderDao {
       _id: {
         $in: ids,
       },
-    });
+    }, null, { lean: true });
     return result.map((doc) => this.transformFromDoc(doc));
   }
 
   public async saveOrder(order: Order): Promise<Order> {
-    const result = await MongooseOrder.updateOne(
-      {
-      _id: order.id,
-      },
+    const result = await MongooseOrder.findByIdAndUpdate(
+      order.id,
       this.transformToDoc(order),
       {
         upsert: true,
+        // @ts-ignore
+        lean: true,
+        new: true,
       });
-    if ( result.ops.length === 0) {
+    if (!result) {
       throw new Error("Failed to save user to db");
     }
-    return this.transformFromDoc(result.ops[0]);
+    return this.transformFromDoc(result);
   }
 
   public async getAssignedOrdersByUserId(userId: string): Promise<Order[]> {
@@ -73,7 +74,7 @@ export class OrderDao implements IOrderDao {
           customerId: userId,
         },
       ],
-    });
+    }, null, { lean: true });
     return orders.map((order) => this.transformFromDoc(order));
   }
 

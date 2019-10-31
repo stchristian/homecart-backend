@@ -10,13 +10,13 @@ import { IProductDao } from "./IProductDao";
 @injectable()
 export class ProductDao implements IProductDao {
   public async getProductById(id: string): Promise<Product>  {
-    const product = await MongooseProduct.findOne({ _id: id });
+    const product = await MongooseProduct.findOne({ _id: id }, null, { lean: true });
     if (!product) { throw new Error(`No product with id ${id}`); }
     return this.transformFromDoc(product);
   }
 
   public async searchProducts(text: string): Promise<Product[]> {
-    const products = await MongooseProduct.find({ $text: { $search: text }});
+    const products = await MongooseProduct.find({ $text: { $search: text }}, null, { lean: true });
     return products.map((doc) => this.transformFromDoc(doc));
   }
 
@@ -26,28 +26,29 @@ export class ProductDao implements IProductDao {
       _id: {
         $in: ids,
       },
-    });
+    }, null, { lean: true });
     return result.map((doc) => this.transformFromDoc(doc));
   }
 
   public async getAllProducts(): Promise<Product[]> {
-    const result = await MongooseProduct.find();
+    const result = await MongooseProduct.find(null, null, { lean: true });
     return result.map((doc) => this.transformFromDoc(doc));
   }
 
   public async saveProduct(product: Product): Promise<Product> {
-    const result = await MongooseProduct.updateOne(
-      {
-      _id: product.id,
-      },
+    const result = await MongooseProduct.findByIdAndUpdate(
+      product.id,
       this.transformToDoc(product),
       {
         upsert: true,
+        // @ts-ignore
+        lean: true,
+        new: true,
       });
-    if ( result.ops.length === 0) {
+    if (!result) {
       throw new Error("Failed to save product to db");
     }
-    return this.transformFromDoc(result.ops[0]);
+    return this.transformFromDoc(result);
   }
 
   public async deleteProductById(id: string): Promise<void> {

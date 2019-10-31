@@ -36,13 +36,20 @@ export default {
   Mutation: {
     // Y
     createUser: async (_, { createUserInput }, { userService }) => {
-      const user = await userService.createUser(createUserInput);
-      // Make response object
-      return {
-        success: true,
-        message: "User successfully created.",
-        user,
-      };
+      try {
+        const user = await userService.createUser(createUserInput);
+        return {
+          success: true,
+          message: "User successfully created.",
+          user,
+        };
+      } catch (error) {
+        return {
+          success: false,
+          message: error.message,
+          user: null,
+        };
+      }
     },
 
     // Y

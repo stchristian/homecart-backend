@@ -29,6 +29,10 @@ export class UserService implements IUserService {
   }
 
   public async createUser(input: UserDTO): Promise<User> {
+    const u = await this.userDao.getUserByEmail(input.email);
+    if (u) {
+      throw new Error("A user already exists with this email");
+    }
     const user: User = await User.fromUserDTO(input);
     return this.userDao.saveUser(user);
   }

@@ -11,19 +11,17 @@ import { IUserDao } from "./IUserDao";
 export class UserDao implements IUserDao {
 
   public async getUserById(id: string): Promise<User>  {
-    const user = await MongooseUser.findOne({ _id: id });
+    const user = await MongooseUser.findOne({ _id: id }, null, { lean: true });
     if (!user) { throw new Error(`No user with given id ${id}`); }
     return this.transformFromDoc(user);
   }
 
   public async getManyByIds(ids: string[]): Promise<User[]> {
-    console.log(`UserIds requested from db: ${ids}`);
-    // this.loader = null;
     const result = await MongooseUser.find({
       _id: {
         $in: ids,
       },
-    });
+    }, null, { lean: true });
     return result.map((doc) => this.transformFromDoc(doc));
   }
 
@@ -33,7 +31,7 @@ export class UserDao implements IUserDao {
   }
 
   public async getUserByEmail(email: string): Promise<User> {
-    const result = await MongooseUser.findOne({ email });
+    const result = await MongooseUser.findOne({ email }, null, { lean: true });
     if (result) {
       return this.transformFromDoc(result);
     } else {
@@ -42,13 +40,20 @@ export class UserDao implements IUserDao {
   }
 
   public async saveUser(user: User): Promise<User> {
-    const result = await MongooseUser.updateOne(
-      { _id: user.id },
-      this.transformToDoc(user), { upsert: true });
-    if (result.ops.length === 0) {
+    const result = await MongooseUser.findByIdAndUpdate(
+      user.id,
+      this.transformToDoc(user),
+      {
+        // @ts-ignore
+        upsert: true,
+        // @ts-ignore
+        lean: true,
+        new: true,
+    });
+    if (!result) {
       throw new Error("Failed to save user to db");
     }
-    return this.transformFromDoc(result.ops[0]);
+    return this.transformFromDoc(result);
   }
 
   public async deleteUserById(id: string): Promise<void> {
