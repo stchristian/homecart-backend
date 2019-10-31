@@ -54,12 +54,20 @@ export default {
 
     // Y
     createOrder: async (_, { createOrderInput }, { orderService, currentUser }) => {
-      const order = await orderService.createOrder({ ...createOrderInput, customerId: currentUser.id });
-      return {
-        success: true,
-        message: "Order successully created",
-        order,
-      };
+      try {
+        const order = await orderService.createOrder({ ...createOrderInput, customerId: currentUser.id });
+        return {
+          success: true,
+          message: "Order successully created",
+          order,
+        };
+      } catch (error) {
+        return {
+          success: false,
+          message: error.message,
+          order: null,
+        };
+      }
     },
 
     // Y

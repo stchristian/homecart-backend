@@ -7,7 +7,7 @@ import { Order, OrderState } from "../models/Order";
 import { IOrderService } from "./IOrderService";
 import { IProductService } from "./IProductService";
 import { IUserService } from "./IUserService";
-import { OrderDTO } from "../dto/OrderDTO";
+import { OrderDTO, orderDTOValidator} from "../dto/OrderDTO";
 
 @injectable()
 export class OrderService implements IOrderService {
@@ -95,6 +95,7 @@ export class OrderService implements IOrderService {
   }
 
   public async createOrder(data: OrderDTO): Promise<Order> {
+    await orderDTOValidator.validate(data);
     let estimatedPrice = data.tipPrice;
     for (const item of data.items) {
       const product = await this.productService.getProductById(item.productId);

@@ -9,19 +9,6 @@ import { IProductService } from "./IProductService";
 import { OrderService } from "./OrderService";
 
 describe("User service", () => {
-  // beforeEach(() => {
-
-  //   // create a snapshot so each unit test can modify
-  //   // it without breaking other unit tests
-  //   container.snapshot();
-  // });
-
-  // afterEach(() => {
-  //   // Restore to last snapshot so each unit test
-  //   // takes a clean copy of the application container
-  //   container.restore();
-  //   sinon.restore();
-  // });
 
   test("Set courier for order", async () => {
     const mockedCourier = {

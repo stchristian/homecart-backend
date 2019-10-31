@@ -25,7 +25,6 @@ export class User {
 
   public static async fromUserDTO(input: UserDTO): Promise<User> {
     const user = new User();
-    console.log(input);
     user.id = uuid();
     user.firstName = input.firstName;
     user.lastName = input.lastName;
