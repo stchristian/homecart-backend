@@ -1,4 +1,3 @@
-import { initDb } from "./dal/db";
 import { importSchema } from "graphql-import";
 import { ApolloServer } from "apollo-server";
 import { makeExecutableSchema } from "graphql-tools";
@@ -12,6 +11,7 @@ import { IAuthenticationService } from "./services/IAuthenticationService";
 import { IOrderService } from "./services/IOrderService";
 import { IProductService } from "./services/IProductService";
 import { IUserService } from "./services/IUserService";
+import { connectDb } from "./dal/db";
 const typeDefs = importSchema("./schema.graphql");
 
 export default class App {
@@ -19,7 +19,7 @@ export default class App {
   private services: Services;
 
   public async run(): Promise<any> {
-    await initDb();
+    await connectDb();
     this.setUpDIContainer();
 
     const schema = makeExecutableSchema({

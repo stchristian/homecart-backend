@@ -1,42 +1,17 @@
-import DataLoader from "dataloader";
 import { injectable } from "inversify";
 import "reflect-metadata";
-import { Collection } from "mongodb";
-import { User, UserRoles } from "../../models/User";
-import { getDb } from "../db/index";
+import { User } from "../../models/User";
+import { User as MongooseUser, IUserDocument, IUser } from "../db/models/User";
 import { IUserDao } from "./IUserDao";
-
-interface UserDocument {
-  _id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  password: string;
-  biography: string;
-  phoneNumber: string;
-  balance: number;
-  addresses: any[];
-  roles: UserRoles[];
-}
 
 /**
  *  Persist users into db
  */
 @injectable()
 export class UserDao implements IUserDao {
-  private users: Collection<UserDocument>;
-  // private loader: DataLoader<string, User> = null;
-
-  constructor() {
-    this.users = getDb().collection("users");
-  }
 
   public async getUserById(id: string): Promise<User>  {
-    // if (this.loader === null) {
-    //   this.loader = new DataLoader(this.getManyByIds.bind(this));
-    // }
-    // const user = await this.loader.load(id);
-    const user = await this.users.findOne({ _id: id });
+    const user = await MongooseUser.findOne({ _id: id });
     if (!user) { throw new Error(`No user with given id ${id}`); }
     return this.transformFromDoc(user);
   }
@@ -44,29 +19,21 @@ export class UserDao implements IUserDao {
   public async getManyByIds(ids: string[]): Promise<User[]> {
     console.log(`UserIds requested from db: ${ids}`);
     // this.loader = null;
-    const result = await this.users.find({
+    const result = await MongooseUser.find({
       _id: {
         $in: ids,
       },
-    }).toArray();
+    });
     return result.map((doc) => this.transformFromDoc(doc));
   }
 
   public async getAllUsers(): Promise<User[]> {
-    const result = await this.users.find().toArray();
+    const result = await MongooseUser.find();
     return result.map((doc) => this.transformFromDoc(doc));
   }
 
-  // async createUser(user: User) : Promise<User> {
-  //   const result = await this.users.insertOne(user.toDoc())
-  //   if (result.insertedCount == 0) {
-  //     throw new Error(`Failed to insert user into db...`);
-  //   }
-  //   return User.fromDoc(result.ops[0])
-  // }
-
   public async getUserByEmail(email: string): Promise<User> {
-    const result = await this.users.findOne({ email });
+    const result = await MongooseUser.findOne({ email });
     if (result) {
       return this.transformFromDoc(result);
     } else {
@@ -75,27 +42,22 @@ export class UserDao implements IUserDao {
   }
 
   public async saveUser(user: User): Promise<User> {
-    const result = await this.users.replaceOne(
-      {
-      _id: user.id,
-      },
-      this.transformToDoc(user),
-      {
-        upsert: true,
-      });
-    if ( result.ops.length === 0) {
+    const result = await MongooseUser.updateOne(
+      { _id: user.id },
+      this.transformToDoc(user), { upsert: true });
+    if (result.ops.length === 0) {
       throw new Error("Failed to save user to db");
     }
     return this.transformFromDoc(result.ops[0]);
   }
 
   public async deleteUserById(id: string): Promise<void> {
-    const result = await this.users.deleteOne({
+    const result = await MongooseUser.deleteOne({
       _id: id,
     });
   }
 
-  private transformFromDoc(doc: UserDocument): User {
+  private transformFromDoc(doc: IUserDocument): User {
     const user = new User();
     user.id = doc._id;
     user.email = doc.email;
@@ -110,9 +72,8 @@ export class UserDao implements IUserDao {
     return user;
   }
 
-  private transformToDoc(user: User): UserDocument {
+  private transformToDoc(user: User): IUser {
     return  {
-      _id: user.id,
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,

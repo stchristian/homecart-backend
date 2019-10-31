@@ -1,64 +1,42 @@
-import DataLoader = require("dataloader");
 import { injectable } from "inversify";
-import { Collection } from "mongodb";
 import "reflect-metadata";
 import { Product } from "../../models/Product";
-import { getDb } from "../db";
+import { IProductDocument, Product as MongooseProduct, IProduct } from "../db/models/Product";
 import { IProductDao } from "./IProductDao";
-
-export interface ProductDocument {
-  _id: string;
-  estimatedPrice: number;
-  name: string;
-  description: string;
-}
 
 /**
  *  Persist products into db
  */
 @injectable()
 export class ProductDao implements IProductDao {
-  private products: Collection<ProductDocument>;
-  private loader: DataLoader<string, Product> = null;
-
-  constructor() {
-    this.products = getDb().collection("products");
-    this.products.createIndex({ name: "text" });
-  }
-
   public async getProductById(id: string): Promise<Product>  {
-    // if (this.loader === null) {
-    //   this.loader = new DataLoader(this.getManyByIds.bind(this));
-    // }
-    const product = await this.products.findOne({ _id: id });
+    const product = await MongooseProduct.findOne({ _id: id });
     if (!product) { throw new Error(`No product with id ${id}`); }
-    // return this.loader.load(id);
     return this.transformFromDoc(product);
   }
 
   public async searchProducts(text: string): Promise<Product[]> {
-    const products = await this.products.find({ $text: { $search: text }}).toArray();
+    const products = await MongooseProduct.find({ $text: { $search: text }});
     return products.map((doc) => this.transformFromDoc(doc));
   }
 
   public async getManyByIds(ids: string[]): Promise<Product[]> {
     console.log(`Product ids requested ${ids}`);
-    // this.loader = null;
-    const result = await this.products.find({
+    const result = await MongooseProduct.find({
       _id: {
         $in: ids,
       },
-    }).toArray();
+    });
     return result.map((doc) => this.transformFromDoc(doc));
   }
 
   public async getAllProducts(): Promise<Product[]> {
-    const result = await this.products.find().toArray();
+    const result = await MongooseProduct.find();
     return result.map((doc) => this.transformFromDoc(doc));
   }
 
   public async saveProduct(product: Product): Promise<Product> {
-    const result = await this.products.replaceOne(
+    const result = await MongooseProduct.updateOne(
       {
       _id: product.id,
       },
@@ -73,12 +51,12 @@ export class ProductDao implements IProductDao {
   }
 
   public async deleteProductById(id: string): Promise<void> {
-    const result = await this.products.deleteOne({
+    const result = await MongooseProduct.deleteOne({
       _id: id,
     });
   }
 
-  private transformFromDoc(doc: ProductDocument): Product {
+  private transformFromDoc(doc: IProductDocument): Product {
     const product = new Product();
     product.id = doc._id;
     product.name = doc.name;
@@ -87,9 +65,8 @@ export class ProductDao implements IProductDao {
     return product;
   }
 
-  private transformToDoc(product: Product): ProductDocument {
+  private transformToDoc(product: Product): IProduct {
     return {
-      _id: product.id,
       name: product.name,
       description: product.description,
       estimatedPrice: product.estimatedPrice,

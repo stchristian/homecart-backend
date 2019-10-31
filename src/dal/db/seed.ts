@@ -2,13 +2,13 @@ import dotenv from "dotenv";
 dotenv.config();
 import config from "../../inversify/config";
 import { TYPES } from "../../inversify/types";
-import { initDb } from "./index";
 import { IUserService } from "../../services/IUserService";
 import { IProductService } from "../../services/IProductService";
 import { IOrderService } from "../../services/IOrderService";
 import casual from "casual";
+import mongoose from "./";
 
-initDb().then(async () => {
+async function seed() {
   const container = config();
   const userService = container.get<IUserService>(TYPES.IUserService);
   const productService = container.get<IProductService>(TYPES.IProductService);
@@ -68,4 +68,6 @@ initDb().then(async () => {
     orders.push(order);
   }
   return Promise.resolve();
-});
+}
+
+seed();
