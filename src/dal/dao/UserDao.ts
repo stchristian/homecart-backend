@@ -30,7 +30,7 @@ export class UserDao implements IUserDao {
     return result.map((doc) => this.transformFromDoc(doc));
   }
 
-  public async getUserByEmail(email: string): Promise<User> {
+  public async getUserByEmail(email: string): Promise<User | null> {
     const result = await MongooseUser.findOne({ email }, null, { lean: true });
     if (result) {
       return this.transformFromDoc(result);

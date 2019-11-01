@@ -18,7 +18,7 @@ export class AuthenticationService implements IAuthenticationService {
   public async verifyToken(token: string): Promise<VerifyTokenResult> {
     let decodedToken;
     try {
-      decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+      decodedToken = jwt.verify(token, process.env.JWT_SECRET as string);
     } catch (err) {
       return {
         success: false,
@@ -44,6 +44,7 @@ export class AuthenticationService implements IAuthenticationService {
       return {
         success: false,
         message: error.message,
+        user: null,
       };
     }
   }
@@ -65,7 +66,7 @@ export class AuthenticationService implements IAuthenticationService {
     }
     const token = jwt.sign(
       { userId: user.id },
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET as string,
     );
     const expirationDate = new Date();
     // Token valid for 1 day

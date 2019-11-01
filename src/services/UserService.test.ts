@@ -3,7 +3,7 @@ import { TYPES } from "../inversify/types";
 import { IUserDao } from "../dal/dao/IUserDao";
 import { IUserService } from "./IUserService";
 import sinon from "sinon";
-import { UserDTO } from "../dto/UserDTO";
+import { CreateUserInput } from "../dto/UserDTO";
 import { User } from "../models/User";
 const container = config();
 
@@ -23,12 +23,12 @@ describe("User service", () => {
   });
 
   test("Create user", async () => {
-    const userDto: UserDTO = {
+    const userDto: CreateUserInput = {
       email: "test@test.com",
       password: "Password1234",
       firstName: "Test",
       lastName: "Test",
-      phoneNumber: "+36301112222",
+      phoneNumber: "36 30 111 2222",
       biography: "",
     };
     const userDaoMock: unknown = {
@@ -48,12 +48,12 @@ describe("User service", () => {
   });
 
   test("User becomes a courier", async () => {
-    const testUser: User = await User.fromUserDTO({
+    const testUser: User = await User.create({
       email: "test@test.com",
       password: "Password1234",
       firstName: "TestFirst",
       lastName: "TestLast",
-      phoneNumber: "+36301112222",
+      phoneNumber: "36 30 111 2222",
       biography: "",
     });
     expect(testUser.isCourier).toBe(false);

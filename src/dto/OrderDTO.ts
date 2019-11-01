@@ -2,28 +2,24 @@ import { AmountType } from "../models/Order";
 import * as yup from "yup";
 
 export interface OrderDTO {
-  deadline: Date;
-  preferredDeliveryTime: { start: Date, end: Date };
-  address: AddressDTO;
-  customerId: string;
-  tipPrice: number;
-  items: OrderItemDTO[];
+  deadline?: Date;
+  preferredDeliveryTime?: { start: Date, end: Date };
+  address?: {
+    zip?: number;
+    city?: string;
+    streetAddress?: string;
+  };
+  customerId?: string;
+  tipPrice?: number;
+  items?: Array<{
+    productId?: string;
+    amount?: number;
+    amountType?: AmountType;
+  }>;
   estimatedPrice?: number;
 }
 
-export interface AddressDTO {
-  zip: number;
-  city: string;
-  streetAddress: string;
-}
-
-export interface OrderItemDTO {
-  productId: string;
-  amount: number;
-  amountType: AmountType;
-}
-
-export const orderDTOValidator = yup.object().shape({
+export const createOrderInputValidator = yup.object({
   deadline: yup.date().min(new Date(), "Deadline must be in future").required(),
   preferredDeliveryTime: yup.object({
     start: yup.date().min(new Date(), "Preferred delivery time start must be in future"),
@@ -39,6 +35,8 @@ export const orderDTOValidator = yup.object().shape({
   items: yup.array().of(yup.object({
     productId: yup.string().required(),
     amount: yup.number().positive().required(),
-    amountType: yup.string().required(),
+    amountType: yup.mixed().oneOf(["MASS", "PIECE", "LENGTH", "AREA"]).required(),
   })).required(),
 });
+
+export type CreateOrderInput = yup.InferType<typeof createOrderInputValidator>;

@@ -1,10 +1,5 @@
 import uuid from "uuid/v4";
-
-export interface CreateProductInput {
-  name: string;
-  description?: string;
-  estimatedPrice: number;
-}
+import { CreateProductInput } from "../dto/ProductDTO";
 
 export class Product {
 

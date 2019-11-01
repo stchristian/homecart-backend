@@ -1,6 +1,7 @@
 import { importSchema } from "graphql-import";
 import { ApolloServer } from "apollo-server";
 import { makeExecutableSchema } from "graphql-tools";
+import { User } from "./models/User";
 import resolvers from "./graphql/resolvers";
 import directives from "./graphql/directives";
 import { Container } from "inversify";
@@ -35,7 +36,7 @@ export default class App {
     const server = new ApolloServer({
       schema,
       context: async ({ req }) => {
-        let currentUser = null;
+        let currentUser: User | null = null;
         if (req.headers.authorization) {
           const authHeaderSplitted = req.headers.authorization.split(" ");
           const result = await this.services.authenticationService.verifyToken(authHeaderSplitted[1]);

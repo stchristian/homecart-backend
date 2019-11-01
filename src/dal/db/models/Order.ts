@@ -11,7 +11,7 @@ export interface IOrder {
     zip: number;
     streetAddress: string;
   };
-  courierId?: string;
+  courierId: string | null;
   deadline: Date;
   preferredDeliveryTime: { start: Date, end: Date };
   createdAt: Date;

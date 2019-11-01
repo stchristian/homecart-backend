@@ -31,8 +31,8 @@ describe("User service", () => {
     container.bind<IOrderService>(TYPES.IOrderService).to(OrderService).inSingletonScope();
     container.bind<IOrderDao>(TYPES.IOrderDao).toConstantValue(orderDaoMock as IOrderDao);
     container.bind<IUserService>(TYPES.IUserService).toConstantValue(userServiceMock as IUserService);
-    container.bind<IUserDao>(TYPES.IUserDao).toConstantValue(null);
-    container.bind<IProductService>(TYPES.IProductService).toConstantValue(null);
+    container.bind<IUserDao>(TYPES.IUserDao).toConstantValue({} as IUserDao);
+    container.bind<IProductService>(TYPES.IProductService).toConstantValue({} as IProductService);
     const orderService = container.get<IOrderService>(TYPES.IOrderService);
     const result = await orderService.setCourierForOrder({
       orderId: mockedOrder.id,

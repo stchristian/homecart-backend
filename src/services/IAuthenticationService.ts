@@ -11,7 +11,7 @@ export interface LoginResult {
 export interface VerifyTokenResult {
   message: string;
   success: boolean;
-  user?: User;
+  user: User | null;
 }
 
 export interface Credentials {

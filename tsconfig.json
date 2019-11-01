@@ -3,6 +3,7 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "types": ["reflect-metadata", "jest"],
+    "strictNullChecks": true,
     "sourceMap": true,
     "allowJs": true,
     "lib": ["es6"],

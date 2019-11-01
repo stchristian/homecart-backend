@@ -4,7 +4,7 @@ import { IUserDao } from "../dal/dao/IUserDao";
 import { TYPES } from "../inversify/types";
 import { User } from "../models/User";
 import { IUserService } from "./IUserService";
-import { UserDTO, userDTOValidator } from "../dto/UserDTO";
+import { CreateUserInput, createUserInputValidator } from "../dto/UserDTO";
 
 @injectable()
 export class UserService implements IUserService {
@@ -28,13 +28,13 @@ export class UserService implements IUserService {
     return this.userDao.getAllUsers();
   }
 
-  public async createUser(input: UserDTO): Promise<User> {
-    await userDTOValidator.validate(input);
-    const u = await this.userDao.getUserByEmail(input.email);
+  public async createUser(inputData: CreateUserInput): Promise<User> {
+    await createUserInputValidator.validate(inputData);
+    const u = await this.userDao.getUserByEmail(inputData.email);
     if (u) {
       throw new Error("A user already exists with this email");
     }
-    const user: User = await User.fromUserDTO(input);
+    const user: User = await User.create(inputData);
     return this.userDao.saveUser(user);
   }
 

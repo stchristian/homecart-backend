@@ -7,7 +7,7 @@ import { Order, OrderState } from "../models/Order";
 import { IOrderService } from "./IOrderService";
 import { IProductService } from "./IProductService";
 import { IUserService } from "./IUserService";
-import { OrderDTO, orderDTOValidator} from "../dto/OrderDTO";
+import { OrderDTO, createOrderInputValidator, CreateOrderInput} from "../dto/OrderDTO";
 
 @injectable()
 export class OrderService implements IOrderService {
@@ -79,7 +79,7 @@ export class OrderService implements IOrderService {
       throw new Error("Order is not PURCHASED or you are not the customer.");
     } else {
       const customer = await this.userService.getUserById(order.customerId);
-      const courier = await this.userService.getUserById(order.courierId);
+      const courier = await this.userService.getUserById(order.courierId as string);
       if (customer.balance < order.totalPrice) {
         throw new Error("You are poor my friend.");
       }
@@ -94,15 +94,16 @@ export class OrderService implements IOrderService {
     return this.orderDao.getPostedOrders();
   }
 
-  public async createOrder(data: OrderDTO): Promise<Order> {
-    await orderDTOValidator.validate(data);
-    let estimatedPrice = data.tipPrice;
-    for (const item of data.items) {
+  public async createOrder(inputData: CreateOrderInput): Promise<Order> {
+    await createOrderInputValidator.validate(inputData);
+    const order = Order.create(inputData);
+    let estimatedPrice = inputData.tipPrice;
+    for (const item of inputData.items) {
       const product = await this.productService.getProductById(item.productId);
       estimatedPrice += product.estimatedPrice * item.amount;
     }
-    const order = Order.create({...data, estimatedPrice });
-    const user = await this.userDao.getUserById(data.customerId);
+    order.estimatedPrice = estimatedPrice;
+    const user = await this.userDao.getUserById(inputData.customerId);
     await this.userDao.saveUser(user);
     return this.orderDao.saveOrder(order);
   }

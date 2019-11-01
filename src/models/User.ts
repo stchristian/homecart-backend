@@ -1,7 +1,6 @@
 import bcrypt from "bcryptjs";
 import uuid from "uuid/v4";
-import { UserDTO } from "../dto/UserDTO";
-
+import { CreateUserInput } from "../dto/UserDTO";
 export interface Address {
   zip: number;
   city: string;
@@ -23,7 +22,7 @@ export class User {
     return this.roles.includes(UserRoles.COURIER);
   }
 
-  public static async fromUserDTO(input: UserDTO): Promise<User> {
+  public static async create(input: CreateUserInput): Promise<User> {
     const user = new User();
     user.id = uuid();
     user.firstName = input.firstName;
@@ -34,6 +33,7 @@ export class User {
     user.phoneNumber = input.phoneNumber;
     return user;
   }
+
   public id: string;
   public email: string;
   public firstName: string;
