@@ -1,20 +1,28 @@
 import mongoose, { Schema, Document } from "mongoose";
 import { addressSchema } from "./Address";
-import { OrderState } from "../../../models/Order";
-import { OrderItem } from "../../../models/Order";
+import { OrderState, AmountType } from "../../../enums";
+
+/**
+ * Interface of the document we get from mongodb. This should match with the schema
+ */
 export interface IOrder {
-  customerId: string;
+  customer: string;
   state: OrderState;
-  items: OrderItem[];
+  items: Array<{
+    product: string,
+    amount: number,
+    amountType: AmountType,
+  }>;
   address: {
     city: string;
     zip: number;
     streetAddress: string;
   };
-  courierId: string | null;
+  courier: string | null;
   deadline: Date;
   preferredDeliveryTime: { start: Date, end: Date };
   createdAt: Date;
+  updatedAt?: Date;
   tipPrice: number;
   totalPrice: number;
   realPrice: number;
@@ -26,7 +34,6 @@ export interface IOrderDocument extends IOrder, Document {
 }
 
 const orderItemSchema = new Schema({
-  _id: String,
   amount: {
     type: Number,
     required: true,
@@ -37,20 +44,18 @@ const orderItemSchema = new Schema({
     required: true,
   },
   product: {
-    type: Schema.Types.ObjectId,
+    type: String,
     ref: "Product",
     required: true,
-  },
-  price: {
-    type: Number,
-    default: 0,
   },
 }, { _id: false });
 
 const orderSchema = new Schema({
+  _id: String,
   customer: {
-    type: Schema.Types.ObjectId,
+    type: String,
     ref: "User",
+    required: true,
   },
   state: {
     type: String,
@@ -62,6 +67,7 @@ const orderSchema = new Schema({
       "COMPLETED",
       "EXPIRED",
     ],
+    required: true,
   },
   items: [orderItemSchema],
   address: {
@@ -69,8 +75,9 @@ const orderSchema = new Schema({
     required: true,
   },
   courier: {
-    type: Schema.Types.ObjectId,
+    type: String,
     ref: "User",
+    default: null,
   },
   deadline: {
     type: Date,

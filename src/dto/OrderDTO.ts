@@ -1,4 +1,4 @@
-import { AmountType } from "../models/Order";
+import { AmountType } from "../enums";
 import * as yup from "yup";
 
 export interface OrderDTO {

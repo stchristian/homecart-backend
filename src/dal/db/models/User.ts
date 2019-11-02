@@ -52,11 +52,11 @@ const userSchema = new Schema({
   },
   addresses: [addressSchema],
   orders: [{
-      type: Schema.Types.ObjectId,
+      type: String,
       ref: "Order",
   }],
   courierOrders: [{
-    type: Schema.Types.ObjectId,
+    type: String,
     ref: "Order",
   }],
   biography: {

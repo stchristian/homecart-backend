@@ -3,21 +3,7 @@ import { Product } from "./Product";
 import { Address, User } from "./User";
 import { OrderDTO } from "../dto/OrderDTO";
 import { CreateOrderInput } from "../dto/OrderDTO";
-
-export enum OrderState {
-  POSTED = "POSTED",
-  ASSIGNED = "ASSIGNED",
-  PURCHASED = "PURCHASED",
-  COMPLETED = "COMPLETED",
-  EXPIRED = "EXPIRED",
-}
-
-export enum AmountType {
-  MASS = "MASS",
-  PIECE = "PIECE",
-  LENGTH = "LENGTH",
-  AREA = "AREA",
-}
+import { AmountType, OrderState } from "../enums";
 
 export interface OrderItem {
   productId: string;

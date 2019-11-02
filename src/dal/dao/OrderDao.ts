@@ -1,5 +1,6 @@
 import { injectable } from "inversify";
-import { Order, OrderState } from "../../models/Order";
+import { Order } from "../../models/Order";
+import { OrderState } from "../../enums";
 import { IOrderDao } from "./IOrderDao";
 import { Order as MongooseOrder, IOrderDocument, IOrder } from "../db/models/Order";
 
@@ -17,7 +18,7 @@ export class OrderDao implements IOrderDao {
 
   public async getOrdersByUserId(userId: string): Promise<Order[]> {
     const result = await MongooseOrder.find({
-      customerId: userId,
+      customer: userId,
     }, null, { lean: true });
     return result.map((doc) => this.transformFromDoc(doc));
   }
@@ -31,7 +32,7 @@ export class OrderDao implements IOrderDao {
 
   public async getOrdersByCourierId(courierId: string): Promise<Order[]> {
     const orders = await MongooseOrder.find({
-      courierId,
+      courier: courierId,
     }, null, { lean: true });
     return orders.map((order) => this.transformFromDoc(order));
   }
@@ -68,10 +69,10 @@ export class OrderDao implements IOrderDao {
       },
       $or: [
         {
-          courierId: userId,
+          courier: userId,
         },
         {
-          customerId: userId,
+          customer: userId,
         },
       ],
     }, null, { lean: true });
@@ -81,16 +82,20 @@ export class OrderDao implements IOrderDao {
   private transformFromDoc(doc: IOrderDocument): Order {
     const order = new Order();
     order.id = doc._id,
-    order.customerId = doc.customerId,
+    order.customerId = doc.customer,
     order.state = doc.state,
     order.deadline = doc.deadline,
     order.preferredDeliveryTime = doc.preferredDeliveryTime,
-    order.courierId = doc.courierId,
+    order.courierId = doc.courier,
     order.createdAt = doc.createdAt,
     order.realPrice = doc.realPrice,
     order.totalPrice = doc.totalPrice,
     order.tipPrice = doc.tipPrice,
-    order.items = doc.items,
+    order.items = doc.items.map((i) => ({
+      productId: i.product,
+      amount: i.amount,
+      amountType: i.amountType,
+    })),
     order.address = doc.address,
     order.estimatedPrice = doc.estimatedPrice;
     return order;
@@ -98,16 +103,20 @@ export class OrderDao implements IOrderDao {
 
   private transformToDoc(order: Order): IOrder {
     return  {
-      customerId: order.customerId,
+      customer: order.customerId,
       state: order.state,
       deadline: order.deadline,
       preferredDeliveryTime: order.preferredDeliveryTime,
-      courierId: order.courierId,
+      courier: order.courierId,
       createdAt: order.createdAt,
       realPrice: order.realPrice,
       totalPrice: order.totalPrice,
       tipPrice: order.tipPrice,
-      items: order.items,
+      items: order.items.map((i) => ({
+        product: i.productId,
+        amount: i.amount,
+        amountType: i.amountType,
+      })),
       address: order.address,
       estimatedPrice: order.estimatedPrice,
     };

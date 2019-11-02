@@ -7,6 +7,9 @@ import { IProductService } from "../../services/IProductService";
 import { IOrderService } from "../../services/IOrderService";
 import casual from "casual";
 import mongoose from "./";
+import { User } from "../../models/User";
+import { Product } from "../../models/Product";
+import { Order } from "../../models/Order";
 
 async function seed() {
   const container = config();
@@ -15,7 +18,7 @@ async function seed() {
   const orderService = container.get<IOrderService>(TYPES.IOrderService);
 
   // const couriers = [];
-  const users = [];
+  const users: User[] = [];
   // Random user
   for (let index = 0; index < 20; index++) {
     const user = await userService.createUser({
@@ -28,7 +31,7 @@ async function seed() {
     });
     users.push(user);
   }
-  const products = [];
+  const products: Product[] = [];
   // Random products
   for (let index = 0; index < 30; index++) {
     const product = await productService.createProduct({
@@ -40,7 +43,7 @@ async function seed() {
   }
 
   // Random orders
-  const orders = [];
+  const orders: Order[] = [];
   for (let index = 0; index < 10; index++) {
     const items = [...Array(casual.integer(1, 8)).keys()].map(() => {
       return {
