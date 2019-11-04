@@ -8,10 +8,9 @@
   },
   "scripts": {
     "test": "jest",
-    "dev": "nodemon ./dist/index.js",
+    "dev": "ts-node src/index.ts",
     "seed": "node ./dist/dal/db/seed.js",
     "start": "node ./dist",
-    "ts": "tsc -w",
     "build-ts": "tsc",
     "build": "npm run build-ts",
     "schema": "npx apollo schema:download --endpoint=https://homecart-backend.herokuapp.com/graphql schema.json"

@@ -1,7 +1,7 @@
 import { inject, injectable } from "inversify";
 import "reflect-metadata";
-import { IOrderDao } from "src/dal/dao/IOrderDao";
-import { IUserDao } from "src/dal/dao/IUserDao";
+import { IOrderDao } from "../dal/dao/IOrderDao";
+import { IUserDao } from "../dal/dao/IUserDao";
 import { TYPES } from "../inversify/types";
 import { Order } from "../models/Order";
 import { OrderState } from "../enums";

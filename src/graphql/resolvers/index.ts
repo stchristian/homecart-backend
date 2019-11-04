@@ -143,6 +143,7 @@ export default {
         return {
           success: false,
           message: error.message,
+          order: null,
         };
       }
     },
@@ -166,15 +167,6 @@ export default {
       }
     },
   },
-
-  // User: {
-  //   courierOrders: (user, _, { orderService }) => {
-  //     return orderService.getCourierOrdersByUserId(user.id);
-  //   },
-  //   orders: (user, _, { orderService }) => {
-  //     return orderService.getOrdersByUserId(user.id);
-  //   },
-  // },
 
   Order: {
     customer: (order, args, { currentUser, userLoader }) => {
