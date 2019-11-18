@@ -1,10 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose";
 import { addressSchema } from "./Address";
-
-enum UserRoles {
-  ADMIN = "ADMIN",
-  COURIER = "COURIER",
-}
+import { UserRoles } from "../../../enums";
 
 export interface IUser {
   email: string;
@@ -47,7 +43,7 @@ const userSchema = new Schema({
   roles: {
     type: [{
       type: String,
-      enum: ["ADMIN", "COURIER"],
+      enum: Object.values(UserRoles),
     }],
   },
   addresses: [addressSchema],

@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose";
 import { addressSchema } from "./Address";
-import { OrderState, AmountType } from "../../../enums";
+import { OrderState } from "../../../enums";
 
 /**
  * Interface of the document we get from mongodb. This should match with the schema
@@ -11,7 +11,6 @@ export interface IOrder {
   items: Array<{
     product: string,
     amount: number,
-    amountType: AmountType,
   }>;
   address: {
     city: string;
@@ -38,11 +37,6 @@ const orderItemSchema = new Schema({
     type: Number,
     required: true,
   },
-  amountType: {
-    type: String,
-    enum: ["MASS", "PIECE", "LENGTH", "AREA"],
-    required: true,
-  },
   product: {
     type: String,
     ref: "Product",
@@ -59,14 +53,7 @@ const orderSchema = new Schema({
   },
   state: {
     type: String,
-    enum: [
-      "CREATED",
-      "POSTED",
-      "ASSIGNED",
-      "PURCHASED",
-      "COMPLETED",
-      "EXPIRED",
-    ],
+    enum: Object.values(OrderState),
     required: true,
   },
   items: [orderItemSchema],

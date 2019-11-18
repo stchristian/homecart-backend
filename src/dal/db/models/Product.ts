@@ -1,9 +1,12 @@
 import mongoose, { Schema, Document } from "mongoose";
 
+import { AmountType } from "../../../enums";
+
 export interface IProduct {
   name: string;
   description: string;
   estimatedPrice: number;
+  amountType: AmountType;
 }
 
 export interface IProductDocument extends Document, IProduct {
@@ -21,6 +24,11 @@ const productSchema = new Schema({
   },
   estimatedPrice: {
     type: Number,
+    required: true,
+  },
+  amountType: {
+    type: String,
+    enum: Object.values(AmountType),
     required: true,
   },
 });
