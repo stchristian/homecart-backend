@@ -106,6 +106,14 @@ export default {
         user,
       };
     },
+
+    acceptCourierApplication: (_, { userId } , { userService }) => {
+      return {
+        success: false,
+        message: "Resolver not implemented",
+      };
+    },
+
     // Y
     signUpForOrder: async (_, { signUpForOrderInput }, { currentUser, orderService }) => {
       try {
@@ -169,10 +177,10 @@ export default {
   },
 
   Order: {
-    customer: (order, args, { currentUser, userLoader }) => {
+    customer: (order, _, { userLoader }) => {
       return userLoader.load(order.customerId);
     },
-    courier: (order, args, { currentUser, userLoader }) => {
+    courier: (order, _, { userLoader }) => {
       if (!!order.courierId) {
         return userLoader.load(order.courierId);
       }
@@ -181,7 +189,7 @@ export default {
   },
 
   OrderItem: {
-    product: (orderItem, args, { productLoader }) => {
+    product: (orderItem, _, { productLoader }) => {
       return productLoader.load(orderItem.productId);
     },
     // price: (orderItem, args, { productService }) => {
