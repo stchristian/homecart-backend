@@ -1,5 +1,4 @@
 import { Order } from "../../models/Order";
-import { User } from "../../models/User";
 
 export interface IOrderDao {
   getManyByIds(ids: string[]): Promise<Order[]>;
