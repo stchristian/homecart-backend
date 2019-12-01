@@ -1,5 +1,6 @@
 import uuid from "uuid/v4";
 import { CreateProductInput } from "../dto/ProductDTO";
+import { AmountType } from "../enums";
 
 export class Product {
 
@@ -15,4 +16,5 @@ export class Product {
   public name: string;
   public description: string;
   public estimatedPrice: number;
+  public amountType: AmountType;
 }

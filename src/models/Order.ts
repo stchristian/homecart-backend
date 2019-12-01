@@ -8,7 +8,6 @@ import { AmountType, OrderState } from "../enums";
 export interface OrderItem {
   productId: string;
   amount: number;
-  amountType: AmountType;
 }
 
 export class Order {
