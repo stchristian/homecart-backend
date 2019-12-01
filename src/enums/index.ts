@@ -12,3 +12,8 @@ export enum AmountType {
   LENGTH = "LENGTH",
   AREA = "AREA",
 }
+
+export enum UserRoles {
+  ADMIN = "ADMIN",
+  COURIER = "COURIER",
+}
