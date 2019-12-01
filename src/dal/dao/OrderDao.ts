@@ -2,7 +2,7 @@ import { injectable } from "inversify";
 import { Order } from "../../models/Order";
 import { OrderState } from "../../enums";
 import { IOrderDao } from "./IOrderDao";
-import { Order as MongooseOrder, IOrderDocument, IOrder } from "../db/models/Order";
+import { Order as MongooseOrder, IOrderDoc} from "../db/models/Order";
 
 /**
  *  Persist orders into db
@@ -11,43 +11,43 @@ import { Order as MongooseOrder, IOrderDocument, IOrder } from "../db/models/Ord
 export class OrderDao implements IOrderDao {
 
   public async getOrderById(id: string): Promise<Order>  {
-    const userDoc = await MongooseOrder.findOne({ _id: id }, null, { lean: true });
-    if (!userDoc) { throw new Error("No order with the given id"); }
-    return this.transformFromDoc(userDoc);
+    const order: IOrderDoc | null = await MongooseOrder.findOne({ _id: id }).lean();
+    if (!order) { throw new Error("No order with the given id"); }
+    return this.transformFromDoc(order);
   }
 
   public async getOrdersByUserId(userId: string): Promise<Order[]> {
-    const result = await MongooseOrder.find({
+    const result: IOrderDoc[] = await MongooseOrder.find({
       customer: userId,
-    }, null, { lean: true });
+    }).lean();
     return result.map((doc) => this.transformFromDoc(doc));
   }
 
   public async getPostedOrders(): Promise<Order[]> {
-    const orders = await MongooseOrder.find({
+    const orders: IOrderDoc[] = await MongooseOrder.find({
       state: OrderState.POSTED,
-    }, null, { lean: true });
+    }).lean();
     return orders.map((order) => this.transformFromDoc(order));
   }
 
   public async getOrdersByCourierId(courierId: string): Promise<Order[]> {
-    const orders = await MongooseOrder.find({
+    const orders: IOrderDoc[] = await MongooseOrder.find({
       courier: courierId,
-    }, null, { lean: true });
+    }).lean();
     return orders.map((order) => this.transformFromDoc(order));
   }
 
   public async getManyByIds(ids: string[]): Promise<Order[]> {
-    const result = await MongooseOrder.find({
+    const result: IOrderDoc[] = await MongooseOrder.find({
       _id: {
         $in: ids,
       },
-    }, null, { lean: true });
+    }).lean();
     return result.map((doc) => this.transformFromDoc(doc));
   }
 
   public async saveOrder(order: Order): Promise<Order> {
-    const result = await MongooseOrder.findByIdAndUpdate(
+    const result: IOrderDoc = await MongooseOrder.findByIdAndUpdate(
       order.id,
       this.transformToDoc(order),
       {
@@ -63,7 +63,7 @@ export class OrderDao implements IOrderDao {
   }
 
   public async getAssignedOrdersByUserId(userId: string): Promise<Order[]> {
-    const orders = await MongooseOrder.find({
+    const orders: IOrderDoc[] = await MongooseOrder.find({
       state: {
         $in: [OrderState.ASSIGNED, OrderState.PURCHASED, OrderState.COMPLETED],
       },
@@ -75,11 +75,11 @@ export class OrderDao implements IOrderDao {
           customer: userId,
         },
       ],
-    }, null, { lean: true });
+    }).lean();
     return orders.map((order) => this.transformFromDoc(order));
   }
 
-  private transformFromDoc(doc: IOrderDocument): Order {
+  private transformFromDoc(doc: IOrderDoc): Order {
     const order = new Order();
     order.id = doc._id,
     order.customerId = doc.customer,
@@ -94,15 +94,15 @@ export class OrderDao implements IOrderDao {
     order.items = doc.items.map((i) => ({
       productId: i.product,
       amount: i.amount,
-      amountType: i.amountType,
     })),
     order.address = doc.address,
     order.estimatedPrice = doc.estimatedPrice;
     return order;
   }
 
-  private transformToDoc(order: Order): IOrder {
+  private transformToDoc(order: Order): IOrderDoc {
     return  {
+      _id: order.id,
       customer: order.customerId,
       state: order.state,
       deadline: order.deadline,
@@ -115,7 +115,6 @@ export class OrderDao implements IOrderDao {
       items: order.items.map((i) => ({
         product: i.productId,
         amount: i.amount,
-        amountType: i.amountType,
       })),
       address: order.address,
       estimatedPrice: order.estimatedPrice,

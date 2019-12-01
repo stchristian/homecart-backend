@@ -1,7 +1,7 @@
 import { injectable } from "inversify";
 import "reflect-metadata";
-import { User } from "../../models/User";
-import { User as MongooseUser, IUserDocument, IUser } from "../db/models/User";
+import { User} from "../../models/User";
+import { User as MongooseUser, IUserDoc } from "../db/models/User";
 import { IUserDao } from "./IUserDao";
 
 /**
@@ -11,27 +11,27 @@ import { IUserDao } from "./IUserDao";
 export class UserDao implements IUserDao {
 
   public async getUserById(id: string): Promise<User>  {
-    const user = await MongooseUser.findOne({ _id: id }, null, { lean: true });
+    const user: IUserDoc | null = await MongooseUser.findOne({ _id: id }).lean();
     if (!user) { throw new Error(`No user with given id ${id}`); }
     return this.transformFromDoc(user);
   }
 
   public async getManyByIds(ids: string[]): Promise<User[]> {
-    const result = await MongooseUser.find({
+    const result: [IUserDoc] = await MongooseUser.find({
       _id: {
         $in: ids,
       },
-    }, null, { lean: true });
+    }).lean();
     return result.map((doc) => this.transformFromDoc(doc));
   }
 
   public async getAllUsers(): Promise<User[]> {
-    const result = await MongooseUser.find();
+    const result: [IUserDoc] = await MongooseUser.find().lean();
     return result.map((doc) => this.transformFromDoc(doc));
   }
 
   public async getUserByEmail(email: string): Promise<User | null> {
-    const result = await MongooseUser.findOne({ email }, null, { lean: true });
+    const result: IUserDoc | null = await MongooseUser.findOne({ email }).lean();
     if (result) {
       return this.transformFromDoc(result);
     } else {
@@ -40,7 +40,7 @@ export class UserDao implements IUserDao {
   }
 
   public async saveUser(user: User): Promise<User> {
-    const result = await MongooseUser.findByIdAndUpdate(
+    const result: IUserDoc = await MongooseUser.findByIdAndUpdate(
       user.id,
       this.transformToDoc(user),
       {
@@ -62,7 +62,7 @@ export class UserDao implements IUserDao {
     });
   }
 
-  private transformFromDoc(doc: IUserDocument): User {
+  private transformFromDoc(doc: IUserDoc): User {
     const user = new User();
     user.id = doc._id;
     user.email = doc.email;
@@ -77,8 +77,9 @@ export class UserDao implements IUserDao {
     return user;
   }
 
-  private transformToDoc(user: User): IUser {
+  private transformToDoc(user: User): IUserDoc {
     return  {
+      _id: user.id,
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
@@ -90,5 +91,4 @@ export class UserDao implements IUserDao {
       phoneNumber: user.phoneNumber,
     };
   }
-
 }

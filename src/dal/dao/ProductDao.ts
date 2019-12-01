@@ -1,7 +1,7 @@
 import { injectable } from "inversify";
 import "reflect-metadata";
 import { Product } from "../../models/Product";
-import { IProductDocument, Product as MongooseProduct, IProduct } from "../db/models/Product";
+import { IProductDoc, Product as MongooseProduct } from "../db/models/Product";
 import { IProductDao } from "./IProductDao";
 
 /**
@@ -10,33 +10,33 @@ import { IProductDao } from "./IProductDao";
 @injectable()
 export class ProductDao implements IProductDao {
   public async getProductById(id: string): Promise<Product>  {
-    const product = await MongooseProduct.findOne({ _id: id }, null, { lean: true });
+    const product: IProductDoc | null = await MongooseProduct.findOne({ _id: id }).lean();
     if (!product) { throw new Error(`No product with id ${id}`); }
     return this.transformFromDoc(product);
   }
 
   public async searchProducts(text: string): Promise<Product[]> {
-    const products = await MongooseProduct.find({ $text: { $search: text }}, null, { lean: true });
+    const products: [IProductDoc] = await MongooseProduct.find({ $text: { $search: text }}).lean();
     return products.map((doc) => this.transformFromDoc(doc));
   }
 
   public async getManyByIds(ids: string[]): Promise<Product[]> {
     console.log(`Product ids requested ${ids}`);
-    const result = await MongooseProduct.find({
+    const result: [IProductDoc] = await MongooseProduct.find({
       _id: {
         $in: ids,
       },
-    }, null, { lean: true });
+    }).lean();
     return result.map((doc) => this.transformFromDoc(doc));
   }
 
   public async getAllProducts(): Promise<Product[]> {
-    const result = await MongooseProduct.find(null, null, { lean: true });
+    const result: [IProductDoc] = await MongooseProduct.find().lean();
     return result.map((doc) => this.transformFromDoc(doc));
   }
 
   public async saveProduct(product: Product): Promise<Product> {
-    const result = await MongooseProduct.findByIdAndUpdate(
+    const result: IProductDoc = await MongooseProduct.findByIdAndUpdate(
       product.id,
       this.transformToDoc(product),
       {
@@ -57,20 +57,23 @@ export class ProductDao implements IProductDao {
     });
   }
 
-  private transformFromDoc(doc: IProductDocument): Product {
+  private transformFromDoc(doc: IProductDoc): Product {
     const product = new Product();
     product.id = doc._id;
     product.name = doc.name;
     product.description = doc.description;
     product.estimatedPrice = doc.estimatedPrice;
+    product.amountType = doc.amountType;
     return product;
   }
 
-  private transformToDoc(product: Product): IProduct {
+  private transformToDoc(product: Product): IProductDoc {
     return {
+      _id: product.id,
       name: product.name,
       description: product.description,
       estimatedPrice: product.estimatedPrice,
+      amountType: product.amountType,
     };
   }
 }
