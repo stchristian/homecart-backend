@@ -1,7 +1,6 @@
 import bcrypt from "bcryptjs";
 import { inject, injectable } from "inversify";
 import jwt from "jsonwebtoken";
-import "reflect-metadata";
 import { IUserDao } from "../dal/dao/IUserDao";
 import { TYPES } from "../inversify/types";
 import { Credentials, IAuthenticationService, LoginResult, VerifyTokenResult } from "./IAuthenticationService";
@@ -50,32 +49,32 @@ export class AuthenticationService implements IAuthenticationService {
   }
 
   public async loginUser(credentials: Credentials): Promise<LoginResult> {
+    const result: LoginResult = {
+      success: false,
+      message: "Failed to authenticate user",
+      token: null,
+    };
     const user = await this.userDao.getUserByEmail(credentials.email);
     if (!user) {
-      return {
-        success: false,
-        message: "No user with the given email address",
-      };
+      return result;
     }
-    const isEqual = await bcrypt.compare(credentials.password, user.password);
-    if (!isEqual) {
-      return {
-        success: false,
-        message: "Passsword incorrect",
-      };
+    const passwordsAreEqual = await bcrypt.compare(credentials.password, user.password);
+    if (!passwordsAreEqual) {
+      result.message = "Password is incorrect";
+      return result;
     }
     const token = jwt.sign(
       { userId: user.id },
       process.env.JWT_SECRET as string,
+      {
+        algorithm: "HS256",
+        expiresIn: "10d",
+      },
     );
-    const expirationDate = new Date();
-    // Token valid for 1 day
-    expirationDate.setHours(expirationDate.getHours() + 24);
     return {
       success: true,
       message: "Logged in successfully",
       token,
-      expirationDate,
     };
   }
 }
