@@ -5,7 +5,8 @@ import { OrderState } from "../../../enums";
 /**
  * Interface of the document we get from mongodb. This should match with the schema
  */
-export interface IOrder {
+export interface IOrderDoc {
+  _id: string;
   customer: string;
   state: OrderState;
   items: Array<{
@@ -26,10 +27,6 @@ export interface IOrder {
   totalPrice: number;
   realPrice: number;
   estimatedPrice: number;
-}
-
-export interface IOrderDocument extends IOrder, Document {
-
 }
 
 const orderItemSchema = new Schema({
@@ -102,7 +99,7 @@ const orderSchema = new Schema({
   timestamps: true,
 });
 
-const Order = mongoose.model<IOrderDocument>("Order", orderSchema);
+const Order = mongoose.model("Order", orderSchema);
 
 export {
   Order,

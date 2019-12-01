@@ -2,15 +2,12 @@ import mongoose, { Schema, Document } from "mongoose";
 
 import { AmountType } from "../../../enums";
 
-export interface IProduct {
+export interface IProductDoc {
+  _id: string;
   name: string;
   description: string;
   estimatedPrice: number;
   amountType: AmountType;
-}
-
-export interface IProductDocument extends Document, IProduct {
-
 }
 
 const productSchema = new Schema({
@@ -35,7 +32,7 @@ const productSchema = new Schema({
 
 productSchema.index({name : "text"});
 
-const Product = mongoose.model<IProductDocument>("Product", productSchema);
+const Product = mongoose.model("Product", productSchema);
 
 export {
   Product,

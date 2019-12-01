@@ -2,7 +2,8 @@ import mongoose, { Schema, Document } from "mongoose";
 import { addressSchema } from "./Address";
 import { UserRoles } from "../../../enums";
 
-export interface IUser {
+export interface IUserDoc {
+  _id: string;
   email: string;
   firstName: string;
   lastName: string;
@@ -12,10 +13,6 @@ export interface IUser {
   balance: number;
   addresses: any[];
   roles: UserRoles[] ;
-}
-
-export interface IUserDocument extends Document, IUser {
-
 }
 
 const userSchema = new Schema({
@@ -65,7 +62,7 @@ const userSchema = new Schema({
   },
 });
 
-const User = mongoose.model<IUserDocument>("User", userSchema);
+const User = mongoose.model("User", userSchema);
 
 export {
   User,
