@@ -30,11 +30,11 @@ export class UserService implements IUserService {
 
   public async createUser(inputData: CreateUserInput): Promise<User> {
     await createUserInputValidator.validate(inputData);
-    const u = await this.userDao.getUserByEmail(inputData.email);
-    if (u) {
+    let user = await this.userDao.getUserByEmail(inputData.email);
+    if (user) {
       throw new Error("A user already exists with this email");
     }
-    const user: User = await User.create(inputData);
+    user = await User.create(inputData);
     return this.userDao.saveUser(user);
   }
 
