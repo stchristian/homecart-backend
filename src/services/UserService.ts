@@ -5,6 +5,7 @@ import { TYPES } from "../inversify/types";
 import { User } from "../models/User";
 import { IUserService } from "./IUserService";
 import { CreateUserInput, createUserInputValidator } from "../dto/UserDTO";
+import { CourierApplicationState } from "../enums";
 
 @injectable()
 export class UserService implements IUserService {
@@ -40,7 +41,13 @@ export class UserService implements IUserService {
 
   public async applyForCourier(userId: string): Promise<User> {
     const user = await this.userDao.getUserById(userId);
-    user.setCourier(true);
+    if (user.isCourier) {
+      throw new Error("You are a courier already!");
+    }
+    if (user.courierApplicationState === CourierApplicationState.APPLIED) {
+      throw new Error("You can only apply once");
+    }
+    user.courierApplicationState = CourierApplicationState.APPLIED;
     return this.userDao.saveUser(user);
   }
 

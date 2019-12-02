@@ -99,19 +99,50 @@ export default {
     },
     // Y
     applyForCourier: async (_, __, { currentUser, userService }) => {
-      const user = await userService.applyForCourier(currentUser.id);
-      return {
-        success: true,
-        message: "You are now a courier",
-        user,
-      };
+      try {
+        const user = await userService.applyForCourier(currentUser.id);
+        return {
+          success: true,
+          message: "Your application has been sent. Waiting for an accept by admin",
+          user,
+        };
+      } catch (error) {
+        return {
+          success: false,
+          message: error.message,
+        };
+      }
     },
 
-    acceptCourierApplication: (_, { userId } , { userService }) => {
-      return {
-        success: false,
-        message: "Resolver not implemented",
-      };
+    acceptCourierApplication: async (_, { acceptCourierApplicationInput} , { adminService }) => {
+      const { userId } = acceptCourierApplicationInput;
+      try {
+        await adminService.acceptCourierApplication(userId);
+        return {
+          success: true,
+          message: `${userId} is now courier`,
+        };
+      } catch (error) {
+        return {
+          success: false,
+          message: error.message,
+        };
+      }
+    },
+
+    rejectCourierApplication: async (_, { userId } , { adminService }) => {
+      try {
+        await adminService.rejectCourierApplication(userId);
+        return {
+          success: true,
+          message: `Application rejected for ${userId}`,
+        };
+      } catch (error) {
+        return {
+          success: false,
+          message: error.message,
+        };
+      }
     },
 
     // Y

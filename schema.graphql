@@ -35,6 +35,7 @@ type Mutation {
   uploadMoney(uploadMoneyInput: UploadMoneyInput!): UploadMoneyResponse! @auth
   applyForCourier: ApplyForCourierResponse! @auth
   acceptCourierApplication(acceptCourierApplicationInput: AcceptCourierApplicationInput!): AcceptCourierApplicationResponse! @auth(role: ADMIN)
+  rejectCourierApplication(rejectCourierApplicationInput: RejectCourierApplicationInput!): RejectCourierApplicationResponse! @auth(role: ADMIN)
   signUpForOrder(signUpForOrderInput: SignUpForOrderInput): SignUpForOrderResponse! @auth(role: COURIER)
   itemsPurchasedForOrder(itemsPurchasedForOrderInput: ItemsPurchasedForOrderInput): ItemsPurchasedForOrderResponse! @auth(role: COURIER) # For the courier
   verifyPurchaseForOrder(verifyPurchaseForOrderInput: VerifyPurchaseForOrderInput): VerifyPurchaseForOrderResponse! @auth# For the customer
@@ -50,7 +51,7 @@ type User {
   addresses: [Address]
   isCourier: Boolean!
   isAdmin: Boolean!
-  pendingCourierApplication: Boolean!
+  courierApplicationState: CourierApplicationState
   biography: String
   balance: Int!
 }
@@ -78,6 +79,12 @@ enum OrderState {
   PURCHASED
   COMPLETED
   EXPIRED
+}
+
+enum CourierApplicationState {
+  APPLIED
+  REJECTED
+  ACCEPTED
 }
 
 type Product {
@@ -224,6 +231,18 @@ type AcceptCourierApplicationResponse implements MutationResponse {
   user: User
 }
 ##### end of acceptCourierApplication
+
+##### rejectCourierApplication
+input RejectCourierApplicationInput {
+  userId: String!
+}
+
+type RejectCourierApplicationResponse implements MutationResponse {
+  success: Boolean!
+  message: String!
+  user: User
+}
+##### end of rejectCourierApplication
 
 ##### itemsPurchasedFor
 input ItemsPurchasedForOrderInput {
