@@ -13,6 +13,7 @@ import { IOrderService } from "./services/IOrderService";
 import { IProductService } from "./services/IProductService";
 import { IUserService } from "./services/IUserService";
 import { connectDb } from "./dal/db";
+import { IAdminService } from "./services/IAdminService";
 const typeDefs = importSchema("./schema.graphql");
 
 export default class App {
@@ -64,6 +65,7 @@ export default class App {
       userService : this.DIContainer.get<IUserService>(TYPES.IUserService),
       productService : this.DIContainer.get<IProductService>(TYPES.IProductService),
       orderService : this.DIContainer.get<IOrderService>(TYPES.IOrderService),
+      adminService: this.DIContainer.get<IAdminService>(TYPES.IAdminService),
     };
   }
 }

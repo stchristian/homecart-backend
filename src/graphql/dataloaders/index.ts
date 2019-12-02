@@ -3,12 +3,14 @@ import { IAuthenticationService } from "../../services/IAuthenticationService";
 import { IOrderService } from "../../services/IOrderService";
 import { IProductService } from "../../services/IProductService";
 import { IUserService } from "../../services/IUserService";
+import { IAdminService } from "../../services/IAdminService";
 
 export interface Services {
   authenticationService: IAuthenticationService;
   userService: IUserService;
   productService: IProductService;
   orderService: IOrderService;
+  adminService: IAdminService;
 }
 
 export default function(services: Services) {

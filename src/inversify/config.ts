@@ -14,6 +14,8 @@ import { OrderService } from "../services/OrderService";
 import { ProductService } from "../services/ProductService";
 import { UserService } from "../services/UserService";
 import { TYPES } from "./types";
+import { IAdminService } from "../services/IAdminService";
+import { AdminService } from "../services/AdminService";
 
 export default function() {
   const myContainer = new Container();
@@ -21,6 +23,7 @@ export default function() {
   myContainer.bind<IUserService>(TYPES.IUserService).to(UserService).inSingletonScope();
   myContainer.bind<IProductService>(TYPES.IProductService).to(ProductService).inSingletonScope();
   myContainer.bind<IOrderService>(TYPES.IOrderService).to(OrderService).inSingletonScope();
+  myContainer.bind<IAdminService>(TYPES.IAdminService).to(AdminService).inSingletonScope();
   myContainer.bind<IUserDao>(TYPES.IUserDao).to(UserDao).inSingletonScope();
   myContainer.bind<IOrderDao>(TYPES.IOrderDao).to(OrderDao).inSingletonScope();
   myContainer.bind<IProductDao>(TYPES.IProductDao).to(ProductDao).inSingletonScope();

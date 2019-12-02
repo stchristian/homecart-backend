@@ -6,6 +6,7 @@ const TYPES = {
   IOrderService: Symbol.for("IOrderService"),
   IUserService: Symbol.for("IUserService"),
   IProductService: Symbol.for("IProductService"),
+  IAdminService: Symbol.for("IAdminService"),
 };
 
 export {
