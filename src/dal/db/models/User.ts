@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose";
 import { addressSchema } from "./Address";
-import { UserRoles } from "../../../enums";
+import { UserRoles, CourierApplicationState } from "../../../enums";
 
 export interface IUserDoc {
   _id: string;
@@ -12,7 +12,8 @@ export interface IUserDoc {
   phoneNumber: string;
   balance: number;
   addresses: any[];
-  roles: UserRoles[] ;
+  roles: UserRoles[];
+  courierApplicationState: CourierApplicationState | null;
 }
 
 const userSchema = new Schema({
@@ -42,6 +43,11 @@ const userSchema = new Schema({
       type: String,
       enum: Object.values(UserRoles),
     }],
+  },
+  courierApplicationState: {
+    type: String,
+    enum: Object.values(CourierApplicationState),
+    default: null,
   },
   addresses: [addressSchema],
   orders: [{

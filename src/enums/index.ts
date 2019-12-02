@@ -17,3 +17,9 @@ export enum UserRoles {
   ADMIN = "ADMIN",
   COURIER = "COURIER",
 }
+
+export enum CourierApplicationState {
+  APPLIED = "APPLIED",
+  REJECTED = "REJECTED",
+  ACCEPTED = "ACCEPTED",
+}

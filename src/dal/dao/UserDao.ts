@@ -3,6 +3,7 @@ import "reflect-metadata";
 import { User} from "../../models/User";
 import { User as MongooseUser, IUserDoc } from "../db/models/User";
 import { IUserDao } from "./IUserDao";
+import { CourierApplicationState } from "../../enums";
 
 /**
  *  Persist users into db
@@ -62,6 +63,13 @@ export class UserDao implements IUserDao {
     });
   }
 
+  public async getCourierApplicants(): Promise<User[]> {
+    const applicants = await MongooseUser.find({
+      courierApplicationState: CourierApplicationState.APPLIED,
+    }).lean();
+    return applicants.map((doc) => this.transformFromDoc(doc));
+  }
+
   private transformFromDoc(doc: IUserDoc): User {
     const user = new User();
     user.id = doc._id;
@@ -74,6 +82,7 @@ export class UserDao implements IUserDao {
     user.addresses = doc.addresses;
     user.roles = doc.roles;
     user.biography = doc.biography;
+    user.courierApplicationState = doc.courierApplicationState;
     return user;
   }
 
@@ -82,6 +91,7 @@ export class UserDao implements IUserDao {
       _id: user.id,
       firstName: user.firstName,
       lastName: user.lastName,
+      courierApplicationState: user.courierApplicationState,
       email: user.email,
       biography: user.biography,
       addresses: user.addresses,

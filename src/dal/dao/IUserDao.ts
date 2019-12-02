@@ -7,4 +7,5 @@ export interface IUserDao {
   getUserByEmail(email: string): Promise<User | null>;
   saveUser(user: User): Promise<User>;
   deleteUserById(id: string): Promise<void>;
+  getCourierApplicants(): Promise<User[]>;
 }
