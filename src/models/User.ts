@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import uuid from "uuid/v4";
 import { CreateUserInput } from "../dto/UserDTO";
+import { CourierApplicationState } from "../enums";
 export interface Address {
   zip: number;
   city: string;
@@ -44,6 +45,7 @@ export class User {
   public addresses: Address[] = [];
   public roles: UserRoles[] = [];
   public biography: string = "";
+  public courierApplicationState: CourierApplicationState | null = null;
 
   public setCourier(value) {
     const index = this.roles.findIndex((role) => role === UserRoles.COURIER);
@@ -51,4 +53,5 @@ export class User {
       this.roles.push(UserRoles.COURIER);
     }
   }
+
 }
