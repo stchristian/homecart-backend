@@ -20,8 +20,12 @@ export class ProductService implements IProductService {
     return this.productDao.getProductById(productId);
   }
 
-  public getProductsByIds(ids: string[]): Promise<Product[]> {
-    return this.productDao.getManyByIds(ids);
+  public async getProductsByIds(ids: string[]): Promise<Array<Product | null>> {
+    const products =  await this.productDao.getManyByIds(ids);
+    return ids.map((id) => {
+      const index = products.findIndex((product) => product.id === id);
+      return index === -1 ? null : products[index];
+    });
   }
 
   public getAllProducts(): Promise<Product[]> {
