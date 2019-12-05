@@ -7,8 +7,25 @@ import { IUserService } from "./IUserService";
 import sinon from "sinon";
 import { IProductService } from "./IProductService";
 import { OrderService } from "./OrderService";
+const container = new Container();
 
-describe("User service", () => {
+describe("Order service", () => {
+  beforeAll(() => {
+    container.bind<IOrderService>(TYPES.IOrderService).to(OrderService).inSingletonScope();
+  });
+
+  beforeEach(() => {
+    // create a snapshot so each unit test can modify
+    // it without breaking other unit tests
+    container.snapshot();
+  });
+
+  afterEach(() => {
+    // Restore to last snapshot so each unit test
+    // takes a clean copy of the application container
+    container.restore();
+    sinon.restore();
+  });
 
   test("Set courier for order", async () => {
     const mockedCourier = {
@@ -27,8 +44,6 @@ describe("User service", () => {
     const userServiceMock: any = {
       getUserById: sinon.stub().withArgs(mockedCourier.id).resolves(mockedCourier),
     };
-    const container = new Container();
-    container.bind<IOrderService>(TYPES.IOrderService).to(OrderService).inSingletonScope();
     container.bind<IOrderDao>(TYPES.IOrderDao).toConstantValue(orderDaoMock as IOrderDao);
     container.bind<IUserService>(TYPES.IUserService).toConstantValue(userServiceMock as IUserService);
     container.bind<IUserDao>(TYPES.IUserDao).toConstantValue({} as IUserDao);
