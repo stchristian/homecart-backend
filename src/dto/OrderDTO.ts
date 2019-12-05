@@ -12,9 +12,8 @@ export interface OrderDTO {
   customerId?: string;
   tipPrice?: number;
   items?: Array<{
-    productId?: string;
+    product?: string;
     amount?: number;
-    amountType?: AmountType;
   }>;
   estimatedPrice?: number;
 }
@@ -35,7 +34,6 @@ export const createOrderInputValidator = yup.object({
   items: yup.array().of(yup.object({
     productId: yup.string().required(),
     amount: yup.number().positive().required(),
-    // amountType: yup.mixed().oneOf(["MASS", "PIECE", "LENGTH", "AREA"]).required(),
   })).required(),
 });
 
