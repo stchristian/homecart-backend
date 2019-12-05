@@ -6,8 +6,8 @@ import { IUserService } from "../services/IUserService";
 import { IProductService } from "../services/IProductService";
 import DataLoader = require("dataloader");
 import { User } from "../models/User";
-import { Order } from "src/models/Order";
-import { Product } from "src/models/Product";
+import { Order } from "../models/Order";
+import { Product } from "../models/Product";
 import { IAdminService } from "../services/IAdminService";
 
 export interface Context {
