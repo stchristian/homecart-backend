@@ -108,7 +108,6 @@ type TimeInterval {
 
 type OrderItem {
   amount: Int!
-  amountType: AmountType!
   product: Product!
 }
 
