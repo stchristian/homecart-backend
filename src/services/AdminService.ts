@@ -1,6 +1,7 @@
 import { IAdminService } from "./IAdminService";
 import { injectable, inject } from "inversify";
 import { TYPES } from "../inversify/types";
+import "reflect-metadata";
 import { IUserDao } from "../dal/dao/IUserDao";
 import { CourierApplicationState, UserRoles } from "../enums";
 import { User } from "../models/User";
@@ -15,23 +16,23 @@ export class AdminService implements IAdminService {
     this.userDao = userDao;
   }
 
-  public async acceptCourierApplication(userId: string): Promise<void> {
+  public async acceptCourierApplication(userId: string): Promise<User> {
     const user: User = await this.userDao.getUserById(userId);
     if (user.courierApplicationState !== CourierApplicationState.APPLIED) {
       throw new Error("Cant accept application. User is not applied");
     }
     user.courierApplicationState = CourierApplicationState.ACCEPTED;
     user.roles.push(UserRoles.COURIER);
-    this.userDao.saveUser(user);
+    return this.userDao.saveUser(user);
   }
 
-  public async rejectCourierApplication(userId: string): Promise<void> {
+  public async rejectCourierApplication(userId: string): Promise<User> {
     const user: User = await this.userDao.getUserById(userId);
     if (user.courierApplicationState !== CourierApplicationState.APPLIED) {
       throw new Error("Cant accept application. User is not applied");
     }
     user.courierApplicationState = CourierApplicationState.REJECTED;
-    this.userDao.saveUser(user);
+    return this.userDao.saveUser(user);
   }
 
   public async getCourierApplicants(): Promise<User[]> {
