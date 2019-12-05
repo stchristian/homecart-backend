@@ -41,6 +41,7 @@ describe("Authentication service", () => {
     const authService = container.get<IAuthenticationService>(TYPES.IAuthenticationService);
     const result = await authService.loginUser(credentials);
     expect(result.success).toBe(true);
+    expect(typeof result.token).toBe("string");
   });
 
   test("Login with wrong password", async () => {
@@ -63,5 +64,6 @@ describe("Authentication service", () => {
     const authService = container.get<IAuthenticationService>(TYPES.IAuthenticationService);
     const result = await authService.loginUser(credentials);
     expect(result.success).toBe(false);
+    expect(result.token).toBeNull();
   });
 });
