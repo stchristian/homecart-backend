@@ -6,13 +6,14 @@ import { IUserService } from "../../services/IUserService";
 import { IProductService } from "../../services/IProductService";
 import { IOrderService } from "../../services/IOrderService";
 import casual from "casual";
-import mongoose from "./";
+import { connectDb } from "./";
 import { User } from "../../models/User";
 import { Product } from "../../models/Product";
 import { Order } from "../../models/Order";
 
 async function seed() {
   const container = config();
+  await connectDb();
   const userService = container.get<IUserService>(TYPES.IUserService);
   const productService = container.get<IProductService>(TYPES.IProductService);
   const orderService = container.get<IOrderService>(TYPES.IOrderService);
@@ -38,6 +39,7 @@ async function seed() {
       name: `Product ${index + 1}`,
       description: casual.sentences(3),
       estimatedPrice: casual.integer(150, 20000),
+      amountType: casual.random_element(["MASS", "PIECE", "LENGTH", "AREA"]),
     });
     products.push(product);
   }
@@ -49,26 +51,31 @@ async function seed() {
       return {
         productId: casual.random_element(products).id,
         amount: casual.integer(1, 20),
-        amountType: casual.random_element(["MASS", "PIECE", "LENGTH", "AREA"]),
       };
     });
     console.log(JSON.stringify(items));
-    const order = await orderService.createOrder({
-      deadline: casual.moment.toDate(),
-      preferredDeliveryTime: {
-        start: casual.moment.toDate(),
-        end: casual.moment.toDate(),
-      },
-      address: {
-        city: casual.city,
-        streetAddress: casual.address,
-        zip: casual.integer(600, 7000),
-      },
-      customerId: casual.random_element(users).id,
-      items,
-      tipPrice: casual.integer(300, 700),
-    });
-    orders.push(order);
+    try {
+      const start = casual.moment.year(2020);
+      const end = start.clone().add(1, "h");
+      const order = await orderService.createOrder({
+        deadline: start.clone().subtract(2, "h"),
+        preferredDeliveryTime: {
+          start: start.toDate(),
+          end: end.toDate(),
+        },
+        address: {
+          city: casual.city,
+          streetAddress: casual.address,
+          zip: casual.integer(600, 7000),
+        },
+        customerId: casual.random_element(users).id,
+        items,
+        tipPrice: casual.integer(300, 700),
+      });
+      orders.push(order);
+    } catch (error) {
+      console.log(error);
+    }
   }
   return Promise.resolve();
 }
