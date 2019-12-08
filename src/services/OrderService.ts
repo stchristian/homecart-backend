@@ -48,6 +48,9 @@ export class OrderService implements IOrderService {
       throw new Error("User is not a courier");
     }
     const order = await this.orderDao.getOrderById(options.orderId);
+    if (order.deadline < new Date()) {
+      throw new Error("Order has expired");
+    }
     if (order.state !== OrderState.POSTED) {
       throw new Error("Order is not in POSTED state");
     }
@@ -82,7 +85,7 @@ export class OrderService implements IOrderService {
       const customer = await this.userService.getUserById(order.customerId);
       const courier = await this.userService.getUserById(order.courierId as string);
       if (customer.balance < order.totalPrice) {
-        throw new Error("You are poor my friend.");
+        throw new Error("You dont have enough money!");
       }
       order.state = OrderState.COMPLETED;
       customer.balance -= order.totalPrice;
