@@ -90,6 +90,7 @@ export class OrderService implements IOrderService {
       order.state = OrderState.COMPLETED;
       customer.balance -= order.totalPrice;
       courier.balance += order.totalPrice;
+      await Promise.all([this.userDao.saveUser(customer), this.userDao.saveUser(courier)]);
       return this.orderDao.saveOrder(order);
     }
   }
