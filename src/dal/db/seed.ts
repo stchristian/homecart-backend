@@ -21,9 +21,13 @@ const productNames = ["Bread", "Tomato", "Potato", "Onion", "Chocolate", "Paper"
 export async function seed() {
   const container = config();
   await connectDb();
-  await ProductModel.db.dropCollection("users");
-  await ProductModel.db.dropCollection("orders");
-  await ProductModel.db.dropCollection("products");
+  try {
+    await ProductModel.db.dropCollection("users");
+    await ProductModel.db.dropCollection("orders");
+    await ProductModel.db.dropCollection("products");
+  } catch (error) {
+    console.log(error.message);
+  }
   const userService = container.get<IUserService>(TYPES.IUserService);
   const productService = container.get<IProductService>(TYPES.IProductService);
   const orderService = container.get<IOrderService>(TYPES.IOrderService);
