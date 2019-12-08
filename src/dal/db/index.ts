@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 export async function connectDb(): Promise<void> {
   try {
-    await mongoose.connect(process.env.MONGODB_CONNECTION_STRING as string, {
+    await mongoose.connect(process.env.MONGODB_URI as string, {
       useNewUrlParser: true,
     });
 
