@@ -1,5 +1,6 @@
 import { GraphQLDateTime } from "graphql-iso-date";
 import { ResolverMap } from "../../@types/resolver";
+import { seed } from "../../dal/db/seed";
 
 export default {
   DateTime: GraphQLDateTime,
@@ -130,12 +131,12 @@ export default {
       }
     },
 
-    rejectCourierApplication: async (_, { userId } , { adminService }) => {
+    rejectCourierApplication: async (_, { rejectCourierApplicationInput } , { adminService }) => {
       try {
-        await adminService.rejectCourierApplication(userId);
+        await adminService.rejectCourierApplication(rejectCourierApplicationInput.userId);
         return {
           success: true,
-          message: `Application rejected for ${userId}`,
+          message: `Application rejected`,
         };
       } catch (error) {
         return {
@@ -195,7 +196,7 @@ export default {
         });
         return {
           success: true,
-          message: "Yea boi",
+          message: "Order completed!",
           order,
         };
       } catch (error) {
@@ -203,6 +204,15 @@ export default {
           success: false,
           message: error.message,
         };
+      }
+    },
+
+    resetDatabase: async () => {
+      try {
+        await seed();
+        return "Successully reset database";
+      } catch (error) {
+        return `Error: ${error.message}`;
       }
     },
   },

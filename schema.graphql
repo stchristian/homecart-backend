@@ -39,6 +39,8 @@ type Mutation {
   signUpForOrder(signUpForOrderInput: SignUpForOrderInput): SignUpForOrderResponse! @auth(role: COURIER)
   itemsPurchasedForOrder(itemsPurchasedForOrderInput: ItemsPurchasedForOrderInput): ItemsPurchasedForOrderResponse! @auth(role: COURIER) # For the courier
   verifyPurchaseForOrder(verifyPurchaseForOrderInput: VerifyPurchaseForOrderInput): VerifyPurchaseForOrderResponse! @auth# For the customer
+
+  resetDatabase: String! @auth(role: ADMIN)
 }
 
 
