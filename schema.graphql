@@ -190,6 +190,7 @@ input CreateProductInput {
   name: String!
   estimatedPrice: Int!
   description: String
+  amountType: AmountType!
 }
 
 type CreateProductResponse implements MutationResponse {
