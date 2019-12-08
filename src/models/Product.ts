@@ -10,6 +10,7 @@ export class Product {
     product.name = input.name;
     product.description = input.description;
     product.estimatedPrice = input.estimatedPrice;
+    product.amountType = input.amountType;
     return product;
   }
   public id: string;
