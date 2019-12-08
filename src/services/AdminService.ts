@@ -19,7 +19,7 @@ export class AdminService implements IAdminService {
   public async acceptCourierApplication(userId: string): Promise<User> {
     const user: User = await this.userDao.getUserById(userId);
     if (user.courierApplicationState !== CourierApplicationState.APPLIED) {
-      throw new Error("Cant accept application. User is not applied");
+      throw new Error("Cant accept application. User is not in APPLIED state");
     }
     user.courierApplicationState = CourierApplicationState.ACCEPTED;
     user.roles.push(UserRoles.COURIER);
@@ -29,7 +29,7 @@ export class AdminService implements IAdminService {
   public async rejectCourierApplication(userId: string): Promise<User> {
     const user: User = await this.userDao.getUserById(userId);
     if (user.courierApplicationState !== CourierApplicationState.APPLIED) {
-      throw new Error("Cant accept application. User is not applied");
+      throw new Error("Cant accept application. User is not in APPLIED state");
     }
     user.courierApplicationState = CourierApplicationState.REJECTED;
     return this.userDao.saveUser(user);
