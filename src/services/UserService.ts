@@ -4,7 +4,8 @@ import { IUserDao } from "../dal/dao/IUserDao";
 import { TYPES } from "../inversify/types";
 import { User } from "../models/User";
 import { IUserService } from "./IUserService";
-import { UserDTO } from "../dto/UserDTO";
+import { CreateUserInput, createUserInputValidator } from "../dto/UserDTO";
+import { CourierApplicationState } from "../enums";
 
 @injectable()
 export class UserService implements IUserService {
@@ -28,14 +29,25 @@ export class UserService implements IUserService {
     return this.userDao.getAllUsers();
   }
 
-  public async createUser(input: UserDTO): Promise<User> {
-    const user: User = await User.fromUserDTO(input);
+  public async createUser(inputData: CreateUserInput): Promise<User> {
+    await createUserInputValidator.validate(inputData);
+    let user = await this.userDao.getUserByEmail(inputData.email);
+    if (user) {
+      throw new Error("A user already exists with this email");
+    }
+    user = await User.create(inputData);
     return this.userDao.saveUser(user);
   }
 
   public async applyForCourier(userId: string): Promise<User> {
     const user = await this.userDao.getUserById(userId);
-    user.setCourier(true);
+    if (user.isCourier) {
+      throw new Error("You are a courier already!");
+    }
+    if (user.courierApplicationState === CourierApplicationState.APPLIED) {
+      throw new Error("You can only apply once");
+    }
+    user.courierApplicationState = CourierApplicationState.APPLIED;
     return this.userDao.saveUser(user);
   }
 

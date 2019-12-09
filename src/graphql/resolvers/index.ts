@@ -1,5 +1,6 @@
 import { GraphQLDateTime } from "graphql-iso-date";
 import { ResolverMap } from "../../@types/resolver";
+import { seed } from "../../dal/db/seed";
 
 export default {
   DateTime: GraphQLDateTime,
@@ -36,23 +37,38 @@ export default {
   Mutation: {
     // Y
     createUser: async (_, { createUserInput }, { userService }) => {
-      const user = await userService.createUser(createUserInput);
-      // Make response object
-      return {
-        success: true,
-        message: "User successfully created.",
-        user,
-      };
+      try {
+        const user = await userService.createUser(createUserInput);
+        return {
+          success: true,
+          message: "User successfully created.",
+          user,
+        };
+      } catch (error) {
+        return {
+          success: false,
+          message: error.message,
+          user: null,
+        };
+      }
     },
 
     // Y
     createOrder: async (_, { createOrderInput }, { orderService, currentUser }) => {
-      const order = await orderService.createOrder({ ...createOrderInput, customerId: currentUser.id });
-      return {
-        success: true,
-        message: "Order successully created",
-        order,
-      };
+      try {
+        const order = await orderService.createOrder({ ...createOrderInput, customerId: currentUser.id });
+        return {
+          success: true,
+          message: "Order successully created",
+          order,
+        };
+      } catch (error) {
+        return {
+          success: false,
+          message: error.message,
+          order: null,
+        };
+      }
     },
 
     // Y
@@ -84,13 +100,52 @@ export default {
     },
     // Y
     applyForCourier: async (_, __, { currentUser, userService }) => {
-      const user = await userService.applyForCourier(currentUser.id);
-      return {
-        success: true,
-        message: "You are now a courier",
-        user,
-      };
+      try {
+        const user = await userService.applyForCourier(currentUser.id);
+        return {
+          success: true,
+          message: "Your application has been sent. Waiting for an accept by admin",
+          user,
+        };
+      } catch (error) {
+        return {
+          success: false,
+          message: error.message,
+        };
+      }
     },
+
+    acceptCourierApplication: async (_, { acceptCourierApplicationInput} , { adminService }) => {
+      const { userId } = acceptCourierApplicationInput;
+      try {
+        await adminService.acceptCourierApplication(userId);
+        return {
+          success: true,
+          message: `${userId} is now courier`,
+        };
+      } catch (error) {
+        return {
+          success: false,
+          message: error.message,
+        };
+      }
+    },
+
+    rejectCourierApplication: async (_, { rejectCourierApplicationInput } , { adminService }) => {
+      try {
+        await adminService.rejectCourierApplication(rejectCourierApplicationInput.userId);
+        return {
+          success: true,
+          message: `Application rejected`,
+        };
+      } catch (error) {
+        return {
+          success: false,
+          message: error.message,
+        };
+      }
+    },
+
     // Y
     signUpForOrder: async (_, { signUpForOrderInput }, { currentUser, orderService }) => {
       try {
@@ -128,6 +183,7 @@ export default {
         return {
           success: false,
           message: error.message,
+          order: null,
         };
       }
     },
@@ -140,7 +196,7 @@ export default {
         });
         return {
           success: true,
-          message: "Yea boi",
+          message: "Order completed!",
           order,
         };
       } catch (error) {
@@ -150,22 +206,22 @@ export default {
         };
       }
     },
+
+    resetDatabase: async () => {
+      try {
+        await seed();
+        return "Successully reset database";
+      } catch (error) {
+        return `Error: ${error.message}`;
+      }
+    },
   },
 
-  // User: {
-  //   courierOrders: (user, _, { orderService }) => {
-  //     return orderService.getCourierOrdersByUserId(user.id);
-  //   },
-  //   orders: (user, _, { orderService }) => {
-  //     return orderService.getOrdersByUserId(user.id);
-  //   },
-  // },
-
   Order: {
-    customer: (order, args, { currentUser, userLoader }) => {
+    customer: (order, _, { userLoader }) => {
       return userLoader.load(order.customerId);
     },
-    courier: (order, args, { currentUser, userLoader }) => {
+    courier: (order, _, { userLoader }) => {
       if (!!order.courierId) {
         return userLoader.load(order.courierId);
       }
@@ -174,7 +230,7 @@ export default {
   },
 
   OrderItem: {
-    product: (orderItem, args, { productLoader }) => {
+    product: (orderItem, _, { productLoader }) => {
       return productLoader.load(orderItem.productId);
     },
     // price: (orderItem, args, { productService }) => {

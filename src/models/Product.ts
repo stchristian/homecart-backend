@@ -1,10 +1,6 @@
 import uuid from "uuid/v4";
-
-export interface CreateProductInput {
-  name: string;
-  description?: string;
-  estimatedPrice: number;
-}
+import { CreateProductInput } from "../dto/ProductDTO";
+import { AmountType } from "../enums";
 
 export class Product {
 
@@ -14,10 +10,12 @@ export class Product {
     product.name = input.name;
     product.description = input.description;
     product.estimatedPrice = input.estimatedPrice;
+    product.amountType = input.amountType;
     return product;
   }
   public id: string;
   public name: string;
   public description: string;
   public estimatedPrice: number;
+  public amountType: AmountType;
 }

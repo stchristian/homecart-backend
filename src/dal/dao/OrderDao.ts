@@ -1,149 +1,121 @@
 import { injectable } from "inversify";
-import { Collection } from "mongodb";
-import { AmountType, Order, OrderItem, OrderState } from "../../models/Order";
-import { Address, User } from "../../models/User";
-import { getDb } from "../db/index";
+import { Order } from "../../models/Order";
+import { OrderState } from "../../enums";
 import { IOrderDao } from "./IOrderDao";
-
-interface OrderItemNestedDoc {
-  productId: string;
-  amount: number;
-  amountType: AmountType;
-}
-
-interface OrderDocument {
-  _id: string;
-  customerId: string;
-  state: OrderState;
-  items: OrderItemNestedDoc[];
-  address: Address;
-  courierId?: string;
-  deadline: Date;
-  preferredDeliveryTime: { start: Date, end: Date };
-  createdAt: Date;
-  tipPrice: number;
-  totalPrice: number;
-  realPrice: number;
-  estimatedPrice: number;
-}
+import { Order as MongooseOrder, IOrderDoc} from "../db/models/Order";
 
 /**
  *  Persist orders into db
  */
 @injectable()
 export class OrderDao implements IOrderDao {
-  private orders: Collection<OrderDocument>;
-
-  constructor() {
-    this.orders = getDb().collection("orders");
-  }
 
   public async getOrderById(id: string): Promise<Order>  {
-    const userDoc = await this.orders.findOne({ _id: id });
-    if (!userDoc) { throw new Error("No order with the given id"); }
-    return this.transformFromDoc(userDoc);
+    const order: IOrderDoc | null = await MongooseOrder.findOne({ _id: id }).lean();
+    if (!order) { throw new Error("No order with the given id"); }
+    return this.transformFromDoc(order);
   }
 
-  // public async getOrdersByUser(user: User): Promise<Order[]> {
-  //   if (user.orderIds.length > 0) {
-  //     const result = await this.getManyByIds(user.orderIds);
-  //     return result;
-  //   } else { return []; }
-  // }
-
   public async getOrdersByUserId(userId: string): Promise<Order[]> {
-    const result = await this.orders.find({
-      customerId: userId,
-    }).toArray();
+    const result: IOrderDoc[] = await MongooseOrder.find({
+      customer: userId,
+    }).lean();
     return result.map((doc) => this.transformFromDoc(doc));
   }
 
   public async getPostedOrders(): Promise<Order[]> {
-    const orders = await this.orders.find({
+    const orders: IOrderDoc[] = await MongooseOrder.find({
       state: OrderState.POSTED,
-    }).toArray();
+    }).lean();
     return orders.map((order) => this.transformFromDoc(order));
   }
 
   public async getOrdersByCourierId(courierId: string): Promise<Order[]> {
-    const orders = await this.orders.find({
-      courierId,
-    }).toArray();
+    const orders: IOrderDoc[] = await MongooseOrder.find({
+      courier: courierId,
+    }).lean();
     return orders.map((order) => this.transformFromDoc(order));
   }
 
   public async getManyByIds(ids: string[]): Promise<Order[]> {
-    const result = await this.orders.find({
+    const result: IOrderDoc[] = await MongooseOrder.find({
       _id: {
         $in: ids,
       },
-    }).toArray();
+    }).lean();
     return result.map((doc) => this.transformFromDoc(doc));
   }
 
   public async saveOrder(order: Order): Promise<Order> {
-    const result = await this.orders.replaceOne(
-      {
-      _id: order.id,
-      },
+    const result: IOrderDoc = await MongooseOrder.findByIdAndUpdate(
+      order.id,
       this.transformToDoc(order),
       {
         upsert: true,
+        // @ts-ignore
+        lean: true,
+        new: true,
       });
-    if ( result.ops.length === 0) {
+    if (!result) {
       throw new Error("Failed to save user to db");
     }
-    return this.transformFromDoc(result.ops[0]);
+    return this.transformFromDoc(result);
   }
 
   public async getAssignedOrdersByUserId(userId: string): Promise<Order[]> {
-    const orders = await this.orders.find({
+    const orders: IOrderDoc[] = await MongooseOrder.find({
       state: {
         $in: [OrderState.ASSIGNED, OrderState.PURCHASED, OrderState.COMPLETED],
       },
       $or: [
         {
-          courierId: userId,
+          courier: userId,
         },
         {
-          customerId: userId,
+          customer: userId,
         },
       ],
-    }).toArray();
+    }).lean();
     return orders.map((order) => this.transformFromDoc(order));
   }
 
-  private transformFromDoc(doc: OrderDocument): Order {
+  private transformFromDoc(doc: IOrderDoc): Order {
     const order = new Order();
     order.id = doc._id,
-    order.customerId = doc.customerId,
+    order.customerId = doc.customer,
     order.state = doc.state,
     order.deadline = doc.deadline,
     order.preferredDeliveryTime = doc.preferredDeliveryTime,
-    order.courierId = doc.courierId,
+    order.courierId = doc.courier,
     order.createdAt = doc.createdAt,
     order.realPrice = doc.realPrice,
     order.totalPrice = doc.totalPrice,
     order.tipPrice = doc.tipPrice,
-    order.items = doc.items,
+    order.items = doc.items.map((i) => ({
+      productId: i.product,
+      amount: i.amount,
+    })),
     order.address = doc.address,
     order.estimatedPrice = doc.estimatedPrice;
     return order;
   }
 
-  private transformToDoc(order: Order): OrderDocument {
+  private transformToDoc(order: Order): IOrderDoc {
     return  {
       _id: order.id,
-      customerId: order.customerId,
+      customer: order.customerId,
       state: order.state,
       deadline: order.deadline,
       preferredDeliveryTime: order.preferredDeliveryTime,
-      courierId: order.courierId,
+      courier: order.courierId,
       createdAt: order.createdAt,
       realPrice: order.realPrice,
       totalPrice: order.totalPrice,
       tipPrice: order.tipPrice,
-      items: order.items,
+      items: order.items.map((i) => ({
+        product: i.productId,
+        amount: i.amount,
+      })),
       address: order.address,
       estimatedPrice: order.estimatedPrice,
     };

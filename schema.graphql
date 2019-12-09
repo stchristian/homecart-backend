@@ -15,7 +15,7 @@ enum UserRole {
 type Query {
   me: User @auth # Returns null when the user is not logged in
   userById(id: ID!): User @auth(role: ADMIN)
-  users: [User!]! @auth(role: ADMIN) # Just for testing, client never uses
+  users: [User!]! @auth(role: ADMIN) # Only for admins
   products(search: String): [Product!]! @auth # Todo pagination?
   myOrders: [Order!]! @auth  # Orders where you were the customer
   myJobs: [Order!]! @auth(role: COURIER) # Orders where you are the courier
@@ -28,28 +28,32 @@ type Mutation {
 
   # create mutations
   createUser(createUserInput: CreateUserInput!): CreateUserResponse!
-  createOrder(createOrderInput: CreateOrderInput!): CreateOrderResponse! 
-  createProduct(createProductInput: CreateProductInput!): CreateProductResponse! 
+  createOrder(createOrderInput: CreateOrderInput!): CreateOrderResponse! @auth
+  createProduct(createProductInput: CreateProductInput!): CreateProductResponse! @auth(role: ADMIN)
 
   # other
-  uploadMoney(uploadMoneyInput: UploadMoneyInput!): UploadMoneyResponse! 
+  uploadMoney(uploadMoneyInput: UploadMoneyInput!): UploadMoneyResponse! @auth
   applyForCourier: ApplyForCourierResponse! @auth
+  acceptCourierApplication(acceptCourierApplicationInput: AcceptCourierApplicationInput!): AcceptCourierApplicationResponse! @auth(role: ADMIN)
+  rejectCourierApplication(rejectCourierApplicationInput: RejectCourierApplicationInput!): RejectCourierApplicationResponse! @auth(role: ADMIN)
   signUpForOrder(signUpForOrderInput: SignUpForOrderInput): SignUpForOrderResponse! @auth(role: COURIER)
   itemsPurchasedForOrder(itemsPurchasedForOrderInput: ItemsPurchasedForOrderInput): ItemsPurchasedForOrderResponse! @auth(role: COURIER) # For the courier
-  verifyPurchaseForOrder(verifyPurchaseForOrderInput: VerifyPurchaseForOrderInput): VerifyPurchaseForOrderResponse!  # For the customer
+  verifyPurchaseForOrder(verifyPurchaseForOrderInput: VerifyPurchaseForOrderInput): VerifyPurchaseForOrderResponse! @auth# For the customer
+
+  resetDatabase: String! @auth(role: ADMIN)
 }
 
 
 type User {
   id: ID!
-  email: String! # Email scalar type?!
+  email: String!
   firstName: String!
   lastName: String!
   phoneNumber: String!
   addresses: [Address]
-  # orders: [Order!]!
   isCourier: Boolean!
-  # courierOrders: [Order!]!
+  isAdmin: Boolean!
+  courierApplicationState: CourierApplicationState
   biography: String
   balance: Int!
 }
@@ -79,11 +83,18 @@ enum OrderState {
   EXPIRED
 }
 
+enum CourierApplicationState {
+  APPLIED
+  REJECTED
+  ACCEPTED
+}
+
 type Product {
   id: ID!
   name: String!
   estimatedPrice: Int!
   description: String
+  amountType: AmountType!
 }
 
 type Address {
@@ -99,9 +110,7 @@ type TimeInterval {
 
 type OrderItem {
   amount: Int!
-  amountType: AmountType!
   product: Product!
-  # price: Int!
 }
 
 interface MutationResponse {
@@ -119,13 +128,6 @@ type LoginUserResponse implements MutationResponse {
   success: Boolean!
   message: String!
   token: String
-  expirationDate: DateTime
-}
-
-type Token {
-  userId: ID!
-  token: String!
-  expirationDate: DateTime!
 }
 ##### end of loginUser
 
@@ -140,7 +142,6 @@ input CreateUserInput {
 }
 
 type CreateUserResponse implements MutationResponse {
-  
   success: Boolean!
   message: String!
   user: User
@@ -164,7 +165,6 @@ input TimeIntervalInput {
 input OrderItemInput {
   productId: ID!
   amount: Int!
-  amountType: AmountType!
 }
 
 enum AmountType {
@@ -181,7 +181,6 @@ input AddressInput {
 }
 
 type CreateOrderResponse implements MutationResponse {
-  
   success: Boolean!
   message: String!
   order: Order
@@ -193,10 +192,10 @@ input CreateProductInput {
   name: String!
   estimatedPrice: Int!
   description: String
+  amountType: AmountType!
 }
 
 type CreateProductResponse implements MutationResponse {
-  
   success: Boolean!
   message: String!
   product: Product
@@ -209,7 +208,6 @@ input UploadMoneyInput {
 }
 
 type UploadMoneyResponse implements MutationResponse {
-  
   success: Boolean!
   message: String!
   user: User
@@ -218,12 +216,35 @@ type UploadMoneyResponse implements MutationResponse {
 
 ##### applyForCourier
 type ApplyForCourierResponse implements MutationResponse {
-  
   success: Boolean!
   message: String!
   user: User
 }
 ##### end of applyForCourier
+
+##### acceptCourierApplication
+input AcceptCourierApplicationInput {
+  userId: String!
+}
+
+type AcceptCourierApplicationResponse implements MutationResponse {
+  success: Boolean!
+  message: String!
+  user: User
+}
+##### end of acceptCourierApplication
+
+##### rejectCourierApplication
+input RejectCourierApplicationInput {
+  userId: String!
+}
+
+type RejectCourierApplicationResponse implements MutationResponse {
+  success: Boolean!
+  message: String!
+  user: User
+}
+##### end of rejectCourierApplication
 
 ##### itemsPurchasedFor
 input ItemsPurchasedForOrderInput {
@@ -232,7 +253,6 @@ input ItemsPurchasedForOrderInput {
 }
 
 type ItemsPurchasedForOrderResponse implements MutationResponse {
-  
   success: Boolean!
   message: String!
   order: Order
@@ -245,7 +265,6 @@ input SignUpForOrderInput {
 }
 
 type SignUpForOrderResponse implements MutationResponse {
-  
   success: Boolean!
   message: String!
   order: Order
@@ -258,7 +277,6 @@ input VerifyPurchaseForOrderInput {
 }
 
 type VerifyPurchaseForOrderResponse implements MutationResponse {
-  
   success: Boolean!
   message: String!
   order: Order

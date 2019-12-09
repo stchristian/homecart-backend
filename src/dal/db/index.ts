@@ -1,20 +1,15 @@
-import { Db, Logger, MongoClient } from "mongodb";
+import mongoose from "mongoose";
 
-let db: Db = null;
+export async function connectDb(): Promise<void> {
+  try {
+    await mongoose.connect(process.env.MONGODB_URI as string, {
+      useNewUrlParser: true,
+    });
 
-export async function initDb(): Promise<void> {
-  const client = new MongoClient(process.env.MONGODB_CONNECTION_STRING, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
-  await client.connect();
-  db = client.db();
-  console.log("Connected succesfully to MongoDB database...");
-}
-
-export function getDb(): Db {
-  if (!db) {
-    throw Error("Db is not initialized. Initialize with initDb()");
+    console.log("Connected succesfully to MongoDB database...");
+  } catch (err) {
+    throw new Error("Failed to connect to database: " + err.message);
   }
-  return db;
 }
+
+export default mongoose;

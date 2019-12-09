@@ -17,4 +17,5 @@
 # DataLoaders
 # Prisma
 # Docker
+# Yup validation
 

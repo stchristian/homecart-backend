@@ -3,15 +3,13 @@ import { User } from "../models/User";
 export interface LoginResult {
   message: string;
   success: boolean;
-  token?: string;
-  user?: User;
-  expirationDate?: Date;
+  token: string | null;
 }
 
 export interface VerifyTokenResult {
   message: string;
   success: boolean;
-  user?: User;
+  user: User | null;
 }
 
 export interface Credentials {

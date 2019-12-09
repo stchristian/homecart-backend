@@ -1,7 +1,10 @@
-import { initDb } from "./dal/db";
 import { importSchema } from "graphql-import";
-import { ApolloServer } from "apollo-server";
+import express from "express";
+import expressPino from "express-pino-logger";
+import pino from "pino";
+import { ApolloServer } from "apollo-server-express";
 import { makeExecutableSchema } from "graphql-tools";
+import { User } from "./models/User";
 import resolvers from "./graphql/resolvers";
 import directives from "./graphql/directives";
 import { Container } from "inversify";
@@ -12,6 +15,8 @@ import { IAuthenticationService } from "./services/IAuthenticationService";
 import { IOrderService } from "./services/IOrderService";
 import { IProductService } from "./services/IProductService";
 import { IUserService } from "./services/IUserService";
+import { connectDb } from "./dal/db";
+import { IAdminService } from "./services/IAdminService";
 const typeDefs = importSchema("./schema.graphql");
 
 export default class App {
@@ -19,7 +24,7 @@ export default class App {
   private services: Services;
 
   public async run(): Promise<any> {
-    await initDb();
+    await connectDb();
     this.setUpDIContainer();
 
     const schema = makeExecutableSchema({
@@ -35,7 +40,7 @@ export default class App {
     const server = new ApolloServer({
       schema,
       context: async ({ req }) => {
-        let currentUser = null;
+        let currentUser: User | null = null;
         if (req.headers.authorization) {
           const authHeaderSplitted = req.headers.authorization.split(" ");
           const result = await this.services.authenticationService.verifyToken(authHeaderSplitted[1]);
@@ -50,10 +55,19 @@ export default class App {
       },
       introspection: true,
     });
-    const { url } = await server.listen({
+    const app = express();
+    const logger = pino({
+      prettyPrint: true,
+    });
+    app.use(expressPino({ logger }));
+    server.applyMiddleware({ app });
+    app.use("/", (req, res) => {
+      return res.send("Hello. You requested the backend of my thesis project. Try sending GraphQL requests to /graphql :-)");
+    });
+    await app.listen({
       port: process.env.PORT,
     });
-    console.log(`Apollo server started on ${url}...`);
+    logger.info(`Server started on port ${process.env.PORT}`);
   }
 
   private setUpDIContainer() {
@@ -63,6 +77,7 @@ export default class App {
       userService : this.DIContainer.get<IUserService>(TYPES.IUserService),
       productService : this.DIContainer.get<IProductService>(TYPES.IProductService),
       orderService : this.DIContainer.get<IOrderService>(TYPES.IOrderService),
+      adminService: this.DIContainer.get<IAdminService>(TYPES.IAdminService),
     };
   }
 }

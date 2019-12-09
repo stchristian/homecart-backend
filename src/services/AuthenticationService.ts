@@ -1,7 +1,6 @@
 import bcrypt from "bcryptjs";
 import { inject, injectable } from "inversify";
 import jwt from "jsonwebtoken";
-import "reflect-metadata";
 import { IUserDao } from "../dal/dao/IUserDao";
 import { TYPES } from "../inversify/types";
 import { Credentials, IAuthenticationService, LoginResult, VerifyTokenResult } from "./IAuthenticationService";
@@ -18,7 +17,7 @@ export class AuthenticationService implements IAuthenticationService {
   public async verifyToken(token: string): Promise<VerifyTokenResult> {
     let decodedToken;
     try {
-      decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+      decodedToken = jwt.verify(token, process.env.JWT_SECRET as string);
     } catch (err) {
       return {
         success: false,
@@ -44,37 +43,38 @@ export class AuthenticationService implements IAuthenticationService {
       return {
         success: false,
         message: error.message,
+        user: null,
       };
     }
   }
 
   public async loginUser(credentials: Credentials): Promise<LoginResult> {
+    const result: LoginResult = {
+      success: false,
+      message: "Failed to authenticate user",
+      token: null,
+    };
     const user = await this.userDao.getUserByEmail(credentials.email);
     if (!user) {
-      return {
-        success: false,
-        message: "No user with the given email address",
-      };
+      return result;
     }
-    const isEqual = await bcrypt.compare(credentials.password, user.password);
-    if (!isEqual) {
-      return {
-        success: false,
-        message: "Passsword incorrect",
-      };
+    const passwordsAreEqual = await bcrypt.compare(credentials.password, user.password);
+    if (!passwordsAreEqual) {
+      result.message = "Password is incorrect";
+      return result;
     }
     const token = jwt.sign(
       { userId: user.id },
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET as string,
+      {
+        algorithm: "HS256",
+        expiresIn: "10d",
+      },
     );
-    const expirationDate = new Date();
-    // Token valid for 1 day
-    expirationDate.setHours(expirationDate.getHours() + 24);
     return {
       success: true,
       message: "Logged in successfully",
       token,
-      expirationDate,
     };
   }
 }

@@ -1,5 +1,5 @@
 import { Order } from "../models/Order";
-import { OrderDTO } from "../dto/OrderDTO";
+import { CreateOrderInput } from "../dto/OrderDTO";
 
 export interface IOrderService {
   getOrdersByUserId(userId: string): Promise<Order[]>;
@@ -12,6 +12,6 @@ export interface IOrderService {
     verifierId: string,
   }): Promise<Order>;
   getPostedOrders(): Promise<Order[]>;
-  createOrder(data: OrderDTO): Promise<Order>;
+  createOrder(data: CreateOrderInput): Promise<Order>;
   getAssignedOrdersByUserId(userId: string): Promise<Order[]>;
 }

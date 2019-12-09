@@ -1,98 +1,79 @@
-import DataLoader = require("dataloader");
 import { injectable } from "inversify";
-import { Collection } from "mongodb";
 import "reflect-metadata";
 import { Product } from "../../models/Product";
-import { getDb } from "../db";
+import { IProductDoc, Product as MongooseProduct } from "../db/models/Product";
 import { IProductDao } from "./IProductDao";
-
-export interface ProductDocument {
-  _id: string;
-  estimatedPrice: number;
-  name: string;
-  description: string;
-}
 
 /**
  *  Persist products into db
  */
 @injectable()
 export class ProductDao implements IProductDao {
-  private products: Collection<ProductDocument>;
-  private loader: DataLoader<string, Product> = null;
-
-  constructor() {
-    this.products = getDb().collection("products");
-    this.products.createIndex({ name: "text" });
-  }
-
   public async getProductById(id: string): Promise<Product>  {
-    // if (this.loader === null) {
-    //   this.loader = new DataLoader(this.getManyByIds.bind(this));
-    // }
-    const product = await this.products.findOne({ _id: id });
+    const product: IProductDoc | null = await MongooseProduct.findOne({ _id: id }).lean();
     if (!product) { throw new Error(`No product with id ${id}`); }
-    // return this.loader.load(id);
     return this.transformFromDoc(product);
   }
 
   public async searchProducts(text: string): Promise<Product[]> {
-    const products = await this.products.find({ $text: { $search: text }}).toArray();
+    const products: [IProductDoc] = await MongooseProduct.find({ $text: { $search: text }}).lean();
     return products.map((doc) => this.transformFromDoc(doc));
   }
 
   public async getManyByIds(ids: string[]): Promise<Product[]> {
     console.log(`Product ids requested ${ids}`);
-    // this.loader = null;
-    const result = await this.products.find({
+    const result: [IProductDoc] = await MongooseProduct.find({
       _id: {
         $in: ids,
       },
-    }).toArray();
+    }).lean();
     return result.map((doc) => this.transformFromDoc(doc));
   }
 
   public async getAllProducts(): Promise<Product[]> {
-    const result = await this.products.find().toArray();
+    const result: [IProductDoc] = await MongooseProduct.find().lean();
     return result.map((doc) => this.transformFromDoc(doc));
   }
 
   public async saveProduct(product: Product): Promise<Product> {
-    const result = await this.products.replaceOne(
-      {
-      _id: product.id,
-      },
+    const result: IProductDoc = await MongooseProduct.findByIdAndUpdate(
+      product.id,
       this.transformToDoc(product),
       {
         upsert: true,
+        // @ts-ignore
+        lean: true,
+        new: true,
       });
-    if ( result.ops.length === 0) {
+    if (!result) {
       throw new Error("Failed to save product to db");
     }
-    return this.transformFromDoc(result.ops[0]);
+    return this.transformFromDoc(result);
   }
 
   public async deleteProductById(id: string): Promise<void> {
-    const result = await this.products.deleteOne({
+    const result = await MongooseProduct.deleteOne({
       _id: id,
     });
   }
 
-  private transformFromDoc(doc: ProductDocument): Product {
+  private transformFromDoc(doc: IProductDoc): Product {
     const product = new Product();
     product.id = doc._id;
     product.name = doc.name;
     product.description = doc.description;
     product.estimatedPrice = doc.estimatedPrice;
+    product.amountType = doc.amountType;
     return product;
   }
 
-  private transformToDoc(product: Product): ProductDocument {
+  private transformToDoc(product: Product): IProductDoc {
     return {
       _id: product.id,
       name: product.name,
       description: product.description,
       estimatedPrice: product.estimatedPrice,
+      amountType: product.amountType,
     };
   }
 }

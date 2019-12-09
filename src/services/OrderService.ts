@@ -1,13 +1,14 @@
 import { inject, injectable } from "inversify";
 import "reflect-metadata";
-import { IOrderDao } from "src/dal/dao/IOrderDao";
-import { IUserDao } from "src/dal/dao/IUserDao";
+import { IOrderDao } from "../dal/dao/IOrderDao";
+import { IUserDao } from "../dal/dao/IUserDao";
 import { TYPES } from "../inversify/types";
-import { Order, OrderState } from "../models/Order";
+import { Order } from "../models/Order";
+import { OrderState } from "../enums";
 import { IOrderService } from "./IOrderService";
 import { IProductService } from "./IProductService";
 import { IUserService } from "./IUserService";
-import { OrderDTO } from "../dto/OrderDTO";
+import { OrderDTO, createOrderInputValidator, CreateOrderInput} from "../dto/OrderDTO";
 
 @injectable()
 export class OrderService implements IOrderService {
@@ -47,6 +48,9 @@ export class OrderService implements IOrderService {
       throw new Error("User is not a courier");
     }
     const order = await this.orderDao.getOrderById(options.orderId);
+    if (order.deadline < new Date()) {
+      throw new Error("Order has expired");
+    }
     if (order.state !== OrderState.POSTED) {
       throw new Error("Order is not in POSTED state");
     }
@@ -79,13 +83,14 @@ export class OrderService implements IOrderService {
       throw new Error("Order is not PURCHASED or you are not the customer.");
     } else {
       const customer = await this.userService.getUserById(order.customerId);
-      const courier = await this.userService.getUserById(order.courierId);
+      const courier = await this.userService.getUserById(order.courierId as string);
       if (customer.balance < order.totalPrice) {
-        throw new Error("You are poor my friend.");
+        throw new Error("You dont have enough money!");
       }
       order.state = OrderState.COMPLETED;
       customer.balance -= order.totalPrice;
       courier.balance += order.totalPrice;
+      await Promise.all([this.userDao.saveUser(customer), this.userDao.saveUser(courier)]);
       return this.orderDao.saveOrder(order);
     }
   }
@@ -94,14 +99,16 @@ export class OrderService implements IOrderService {
     return this.orderDao.getPostedOrders();
   }
 
-  public async createOrder(data: OrderDTO): Promise<Order> {
-    let estimatedPrice = data.tipPrice;
-    for (const item of data.items) {
+  public async createOrder(inputData: CreateOrderInput): Promise<Order> {
+    await createOrderInputValidator.validate(inputData);
+    const order = Order.create(inputData);
+    let estimatedPrice = inputData.tipPrice;
+    for (const item of inputData.items) {
       const product = await this.productService.getProductById(item.productId);
       estimatedPrice += product.estimatedPrice * item.amount;
     }
-    const order = Order.create({...data, estimatedPrice });
-    const user = await this.userDao.getUserById(data.customerId);
+    order.estimatedPrice = estimatedPrice;
+    const user = await this.userDao.getUserById(inputData.customerId);
     await this.userDao.saveUser(user);
     return this.orderDao.saveOrder(order);
   }

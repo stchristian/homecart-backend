@@ -1,11 +1,10 @@
 import { inject, injectable } from "inversify";
 import "reflect-metadata";
 import { IProductDao } from "../dal/dao/IProductDao";
-import { IUserDao } from "../dal/dao/IUserDao";
 import { TYPES } from "../inversify/types";
 import { Product } from "../models/Product";
 import { IProductService } from "./IProductService";
-import { ProductDTO } from "../dto/ProductDTO";
+import { CreateProductInput, createProductValidator } from "../dto/ProductDTO";
 
 @injectable()
 export class ProductService implements IProductService {
@@ -21,15 +20,20 @@ export class ProductService implements IProductService {
     return this.productDao.getProductById(productId);
   }
 
-  public getProductsByIds(ids: string[]): Promise<Product[]> {
-    return this.productDao.getManyByIds(ids);
+  public async getProductsByIds(ids: string[]): Promise<Array<Product | null>> {
+    const products =  await this.productDao.getManyByIds(ids);
+    return ids.map((id) => {
+      const index = products.findIndex((product) => product.id === id);
+      return index === -1 ? null : products[index];
+    });
   }
 
   public getAllProducts(): Promise<Product[]> {
     return this.productDao.getAllProducts();
   }
 
-  public createProduct(data: ProductDTO): Promise<Product> {
+  public async createProduct(data: CreateProductInput): Promise<Product> {
+    await createProductValidator.validate(data);
     const product = Product.create(data);
     return this.productDao.saveProduct(product);
   }
