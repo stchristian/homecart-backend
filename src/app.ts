@@ -59,11 +59,11 @@ export default class App {
     const logger = pino({
       prettyPrint: true,
     });
+    app.use(expressPino({ logger }));
+    server.applyMiddleware({ app });
     app.use("/", (req, res) => {
       return res.send("Hello. You requested the backend of my thesis project. Try sending GraphQL requests to /graphql :-)");
     });
-    app.use(expressPino({ logger }));
-    server.applyMiddleware({ app });
     await app.listen({
       port: process.env.PORT,
     });
