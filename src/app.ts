@@ -1,5 +1,8 @@
 import { importSchema } from "graphql-import";
-import { ApolloServer } from "apollo-server";
+import express from "express";
+import expressPino from "express-pino-logger";
+import pino from "pino";
+import { ApolloServer } from "apollo-server-express";
 import { makeExecutableSchema } from "graphql-tools";
 import { User } from "./models/User";
 import resolvers from "./graphql/resolvers";
@@ -52,10 +55,19 @@ export default class App {
       },
       introspection: true,
     });
-    const { url } = await server.listen({
+    const app = express();
+    const logger = pino({
+      prettyPrint: true,
+    });
+    app.use(expressPino({ logger }));
+    server.applyMiddleware({ app });
+    app.use("/", (req, res) => {
+      return res.send("Hello. You requested the backend of my thesis project. Try sending GraphQL requests to /graphql :-)");
+    });
+    await app.listen({
       port: process.env.PORT,
     });
-    console.log(`Apollo server started on ${url}...`);
+    logger.info(`Server started on port ${process.env.PORT}`);
   }
 
   private setUpDIContainer() {
