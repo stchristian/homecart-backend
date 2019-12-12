@@ -38,11 +38,11 @@ export async function seed() {
 
   // Create admin
   const adminUser = await userService.createUser({
-    email: process.env.SEED_ADMIN_EMAIL,
+    email: process.env.SEED_ADMIN_EMAIL as string,
     firstName: "Adam",
     lastName: "Admin",
     phoneNumber: "36 10 000 1010",
-    password: process.env.SEED_ADMIN_PASSWORD,
+    password: process.env.SEED_ADMIN_PASSWORD as string,
     biography: "I am an admin",
   });
   adminUser.roles.push(UserRoles.ADMIN);
@@ -50,11 +50,11 @@ export async function seed() {
 
   // Create a courier
   const courierUser = await userService.createUser({
-    email: process.env.SEED_COURIER_EMAIL,
+    email: process.env.SEED_COURIER_EMAIL as string,
     firstName: "Chris",
     lastName: "Courier",
     phoneNumber: "36 10 000 1010",
-    password: process.env.SEED_COURIER_PASSWORD,
+    password: process.env.SEED_COURIER_PASSWORD as string,
     biography: "I am the fastest courier",
   });
   courierUser.roles.push(UserRoles.COURIER);
@@ -63,11 +63,11 @@ export async function seed() {
 
   // A normal user
   const normalUser = await userService.createUser({
-    email: process.env.SEED_NORMAL_EMAIL,
+    email: process.env.SEED_NORMAL_EMAIL as string,
     firstName: "John",
     lastName: "Doe",
     phoneNumber: "36 10 000 1010",
-    password: process.env.SEED_NORMAL_PASSWORD,
+    password: process.env.SEED_NORMAL_PASSWORD as string,
     biography: "I am just a simple user",
   });
 
