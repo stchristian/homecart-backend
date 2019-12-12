@@ -99,6 +99,16 @@ const orderSchema = new Schema({
   timestamps: true,
 });
 
+orderSchema.pre("find", function () {
+  // @ts-ignore
+  this.start = Date.now();
+  console.log("Before orderSchema.find()");
+});
+
+orderSchema.post("find", function () {
+  console.log(`After orderSchema.find() ${Date.now() - this.start}ms`);
+});
+
 const Order = mongoose.model("Order", orderSchema);
 
 export {
