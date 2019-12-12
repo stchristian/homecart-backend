@@ -1,6 +1,7 @@
 declare namespace NodeJS {
   export interface ProcessEnv {
     JWT_SECRET: string;
+    MONGODB_URI: string;
     SEED_ADMIN_EMAIL: string;
     SEED_ADMIN_PASSWORD: string;
     SEED_COURIER_EMAIL: string;

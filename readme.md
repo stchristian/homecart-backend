@@ -1,15 +1,7 @@
 Homecart backend
 =
-You will need NodeJs to run this project.
-### Download & install nvm
-```
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash
-```
-### Download & install node
-```
-nvm install 12.1.0
-nvm use 12.1.0
-```
+You will need NodeJs v12 to run this project.
+
 ### Inside project directory 
 To install all dependencies:
 ```
@@ -17,12 +9,13 @@ npm i
 ```
 Run dev server:
 ```
-npm run start
-```
-Generate schema.json for apollo client (the server should be running when executing this command):
-```
-npm run schema
+npm run dev
 ```
 
+### Important
+To run this project you must specify environment variables. You can find which env variables needed in _src/@types/index.d.ts_
+Variables prefixed with SEED are used for the initial data seed. 
+If you want to test the API, I highly recommend this [URL](https://homecart-backend.herokuapp.com/). The insonmia requests goes to this URL.
+
 ### Insomnia
-You can use Insomnia (insead of graphqli) to send graphql request with the authorization headers. Sample queries are added to the project so you can import them.
+You can use [Insomnia](https://insomnia.rest/) (insead of graphqli) to send graphql request with the authorization headers. Sample queries are added to the project so you can import them to Insomnia (_insomnia.json_).
