@@ -9,19 +9,18 @@ import { IProductDao } from "./IProductDao";
  */
 @injectable()
 export class ProductDao implements IProductDao {
-  public async getProductById(id: string): Promise<Product>  {
+  public async getProductById(id: string): Promise<Product> {
     const product: IProductDoc | null = await MongooseProduct.findOne({ _id: id }).lean();
     if (!product) { throw new Error(`No product with id ${id}`); }
     return this.transformFromDoc(product);
   }
 
   public async searchProducts(text: string): Promise<Product[]> {
-    const products: [IProductDoc] = await MongooseProduct.find({ $text: { $search: text }}).lean();
+    const products: [IProductDoc] = await MongooseProduct.find({ $text: { $search: text } }).lean();
     return products.map((doc) => this.transformFromDoc(doc));
   }
 
   public async getManyByIds(ids: string[]): Promise<Product[]> {
-    console.log(`Product ids requested ${ids}`);
     const result: [IProductDoc] = await MongooseProduct.find({
       _id: {
         $in: ids,
