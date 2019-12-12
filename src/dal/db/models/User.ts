@@ -51,8 +51,8 @@ const userSchema = new Schema({
   },
   addresses: [addressSchema],
   orders: [{
-      type: String,
-      ref: "Order",
+    type: String,
+    ref: "Order",
   }],
   courierOrders: [{
     type: String,
@@ -68,6 +68,15 @@ const userSchema = new Schema({
   },
 });
 
+userSchema.pre("find", function () {
+  // @ts-ignore
+  this.start = Date.now();
+  console.log("Before userSchema.find()");
+});
+
+userSchema.post("find", function () {
+  console.log(`After userSchema.find() ${Date.now() - this.start}ms`);
+});
 const User = mongoose.model("User", userSchema);
 
 export {
