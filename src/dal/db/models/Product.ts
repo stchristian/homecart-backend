@@ -30,8 +30,17 @@ const productSchema = new Schema({
   },
 });
 
-productSchema.index({name : "text"});
+productSchema.index({ name: "text" });
+// @ts-ignore
+productSchema.pre(/find/, function () {
+  // @ts-ignore
+  this.start = Date.now();
+  console.log("Before productSchema.find()");
+});
 
+productSchema.post(/find/, function () {
+  console.log(`After productSchema.find() ${Date.now() - this.start}ms`);
+});
 const Product = mongoose.model("Product", productSchema);
 
 export {
